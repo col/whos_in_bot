@@ -20,6 +20,7 @@ defmodule WhosInBot do
   end
 
   def run do
-    {:ok, _} = Plug.Adapters.Cowboy.http WhosInBot.Router, []
+    port = System.get_env("PORT") || "4000" |> String.to_integer
+    {:ok, _} = Plug.Adapters.Cowboy.http WhosInBot.Router, [], port: port
   end
 end
