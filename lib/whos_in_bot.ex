@@ -8,7 +8,9 @@ defmodule WhosInBot do
 
     children = [
       # Define workers and child supervisors to be supervised
-      worker(__MODULE__, [], function: :run)
+      worker(__MODULE__, [], function: :run),
+      # Start the Ecto repository
+      supervisor(WhosInBot.Repo, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
@@ -18,6 +20,6 @@ defmodule WhosInBot do
   end
 
   def run do
-    {:ok, _} = Plug.Adapters.Cowboy.http Router, []
+    {:ok, _} = Plug.Adapters.Cowboy.http WhosInBot.Router, []
   end
 end
