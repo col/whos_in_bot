@@ -20,6 +20,6 @@ defmodule WhosInBot do
   end
 
   def run do
-    {:ok, _} = Plug.Adapters.Cowboy.http WhosInBot.Router, []
+    {:ok, _} = Plug.Adapters.Cowboy.http WhosInBot.Router, [], port: 5000
   end
 end
