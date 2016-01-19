@@ -1,20 +1,14 @@
 # WhosInBot
 
-**TODO: Add description**
+[![Build Status](https://travis-ci.org/col/whos_in_bot.svg?branch=master)](https://travis-ci.org/col/whos_in_bot)
 
-## Installation
+WhosInBot is a Telegram bot that helps you keep track of who is attending an event within a group chat.
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+## Commands
 
-  1. Add whos_in_bot to your list of dependencies in `mix.exs`:
-
-        def deps do
-          [{:whos_in_bot, "~> 0.0.1"}]
-        end
-
-  2. Ensure whos_in_bot is started before your application:
-
-        def application do
-          [applications: [:whos_in_bot]]
-        end
-
+- /start_roll_call - Start a new roll call
+- /end_roll_call - End the current roll call
+- /in - Let everyone know you'll be attending
+- /out - Let everyone know you won't be attending
+- /maybe - Let everyone know that you don't know
+- /whos_in - List attendees
