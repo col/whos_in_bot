@@ -1,0 +1,3 @@
+Host colharris.com
+    StrictHostKeyChecking no
+    IdentityFile ~/.ssh/whosinbot.pem
