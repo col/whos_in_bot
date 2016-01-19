@@ -11,3 +11,6 @@ config :whos_in_bot, WhosInBot.Repo,
   database: "whos_in_bot_dev",
   hostname: "localhost",
   pool_size: 10
+
+# Load the dev secrets if it exists. This can be used to load the Bot Token.
+import_config "dev.secret.exs"

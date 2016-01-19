@@ -7,4 +7,7 @@ config :logger, level: :info
 config :whos_in_bot, WhosInBot.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: {:system, "DATABASE_URL"},
-  pool_size: 20  
+  pool_size: 20
+
+# Load the prod secrets if it exists. This can be used to load the Bot Token.
+import_config "prod.secret.exs"

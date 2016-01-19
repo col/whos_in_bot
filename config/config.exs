@@ -22,7 +22,7 @@ use Mix.Config
 #
 
 config :nadia,
-  token: {:system, "BOT_TOKEN"}
+  token: (System.get_env("BOT_TOKEN") || "")
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
