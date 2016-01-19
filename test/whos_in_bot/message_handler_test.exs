@@ -1,6 +1,5 @@
 defmodule WhosInBot.MessageHandlerTest do
   use ExUnit.Case
-  import Ecto.Model
   import Ecto.Query, only: [from: 2]
   alias WhosInBot.Repo
   alias WhosInBot.MessageHandler

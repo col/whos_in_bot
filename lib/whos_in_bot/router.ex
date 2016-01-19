@@ -1,26 +1,32 @@
 defmodule WhosInBot.Router do
   use Plug.Router
   import Atom.Chars
+  alias WhosInBot.MessageHandler
 
   plug Plug.Parsers, parsers: [:urlencoded, :json],
                      pass:  ["application/json"],
                      json_decoder: Poison
+
   plug :match
   plug :dispatch
 
   post "/telegram/message" do
-    message = to_atom(conn.params).message
-    case WhosInBot.MessageHandler.handle_message(message) do
+    message = Map.get(to_atom(conn.params), :message, %{})
+    case MessageHandler.handle_message(message) do
       {:ok, response} ->
-        Nadia.send_message(message.chat.id, response)
-        conn |> send_resp(200, "")
-      _ ->
-        conn |> send_resp(400, "")
+        send_chat_response(message, response)
+      _ -> nil
     end
+    send_resp(conn, 200, "")
   end
 
   match _ do
     send_resp(conn, 404, "WhosInBot: 404 - Page not found")
   end
+
+  defp send_chat_response(%{ chat: %{ id: chat_id } }, response) when response != nil do
+    Nadia.send_message(chat_id, response)
+  end
+  defp send_chat_response(_, _), do: nil
 
 end

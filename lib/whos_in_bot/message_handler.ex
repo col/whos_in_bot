@@ -52,7 +52,7 @@ defmodule WhosInBot.MessageHandler do
   end
 
   def handle_message(message) do
-    message = message
+    message
     |> add_command
     |> add_params
     |> add_existing_roll_call
