@@ -6,7 +6,7 @@ defmodule WhosInBot.Message do
     if String.contains?(command, "@") do
       {command, _} = String.split(command, "@") |> List.to_tuple
     end
-    Map.put(message, :command, String.to_atom(command))
+    Map.put(message, :command, command)
   end
   def add_command(message), do: message
 
@@ -21,7 +21,7 @@ defmodule WhosInBot.Message do
     Map.put(message, :roll_call, roll_call)
   end
 
-  def requires_roll_call?(%{ command: command }), do: command != :start_roll_call
+  def requires_roll_call?(%{ command: command }), do: command != "start_roll_call"
   def requires_roll_call?(_), do: false
 
   def roll_call_not_found?(message) do
