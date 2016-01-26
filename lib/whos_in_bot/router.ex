@@ -10,6 +10,10 @@ defmodule WhosInBot.Router do
   plug :match
   plug :dispatch
 
+  get "/" do
+    conn |> send_resp(200, "WhosInBot")
+  end
+  
   post "/telegram/message" do
     message = Map.get(to_atom(conn.params), :message, %{})
     case MessageHandler.handle_message(message) do
