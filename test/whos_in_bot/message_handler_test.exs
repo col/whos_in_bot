@@ -26,6 +26,17 @@ defmodule WhosInBot.MessageHandlerTest do
     end
   end
 
+  @tag :roll_call_open
+  test "/in, if there happens to be more than one open roll call, it will close them" do
+    Repo.insert!(%RollCall{ chat_id: @chat.id, status: "open" })
+    Repo.insert!(%RollCall{ chat_id: @chat.id, status: "open" })
+    MessageHandler.handle_message(message(%{text: "/in"}))
+    [r1|[r2,r3]] = Repo.all(from(r in RollCall, where: r.chat_id == ^@chat.id))
+    assert r1.status == "open"
+    assert r2.status == "closed"
+    assert r3.status == "closed"
+  end
+
   test "dosn't crash when there is no :text attribute in the message" do
     {status, response} = MessageHandler.handle_message(message(%{}))
     assert {status, response} == {:error, "Unknown command"}

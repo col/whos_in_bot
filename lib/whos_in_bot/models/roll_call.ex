@@ -29,13 +29,20 @@ defmodule WhosInBot.Models.RollCall do
   end
 
   def roll_call_for_message(%{ chat: %{ id: chat_id } }) do
-    roll_call = Repo.get_by(WhosInBot.Models.RollCall, %{chat_id: chat_id, status: "open"})
-    if roll_call != nil do
-      Repo.preload(roll_call, :responses)
-    end
-    roll_call
+    Repo.all(from(r in WhosInBot.Models.RollCall, where: r.chat_id == ^chat_id and r.status == "open"))
+    |> most_recent_roll_call
   end
   def roll_call_for_message(_), do: nil
+
+  defp most_recent_roll_call([]), do: nil
+  defp most_recent_roll_call([roll_call]) do
+    Repo.preload(roll_call, :responses)
+    roll_call
+  end
+  defp most_recent_roll_call([roll_call|t]) do
+    Repo.update(changeset(roll_call, %{ status: "closed" }))
+    most_recent_roll_call(t)
+  end
 
   def create_roll_call(message) do
     changeset(%WhosInBot.Models.RollCall{}, %{
