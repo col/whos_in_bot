@@ -26,6 +26,11 @@ defmodule WhosInBot.MessageHandlerTest do
     end
   end
 
+  test "dosn't crash when there is no :text attribute in the message" do
+    {status, response} = MessageHandler.handle_message(message(%{}))
+    assert {status, response} == {:error, "Unknown command"}
+  end
+
   test "/start_roll_call responds with 'Roll Call Started'" do
     {status, response} = MessageHandler.handle_message(message(%{text: "/start_roll_call"}))
     assert {status, response} == {:ok, "Roll call started"}

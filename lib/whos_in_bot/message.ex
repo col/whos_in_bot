@@ -21,8 +21,8 @@ defmodule WhosInBot.Message do
     Map.put(message, :roll_call, roll_call)
   end
 
-  def requires_roll_call?(%{ command: command }) when command == :start_roll_call, do: false
-  def requires_roll_call?(_), do: true
+  def requires_roll_call?(%{ command: command }), do: command != :start_roll_call
+  def requires_roll_call?(_), do: false
 
   def roll_call_not_found?(message) do
     message.roll_call == nil

@@ -47,8 +47,7 @@ defmodule WhosInBot.MessageHandler do
   end
 
   def execute_command(_, _) do
-    # unknown command
-    {:ok, nil}
+    {:error, "Unknown command"}
   end
 
   def handle_message(message) do
@@ -63,7 +62,7 @@ defmodule WhosInBot.MessageHandler do
     if requires_roll_call?(message) && roll_call_not_found?(message) do
       {:ok, "No roll call in progress"}
     else
-      execute_command(message.command, message)
+      execute_command(Map.get(message, :command, :unknown), message)
     end
   end
 
