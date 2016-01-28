@@ -2,13 +2,15 @@ defmodule WhosInBot.Message do
   alias WhosInBot.Models.RollCall
 
   def add_command(message = %{ text: text }) do
-    command = String.split(text) |> List.first |> String.slice(1..-1)
+    command = String.split(text) |> List.first
     if String.contains?(command, "@") do
       {command, _} = String.split(command, "@") |> List.to_tuple
     end
     Map.put(message, :command, command)
   end
-  def add_command(message), do: message
+  def add_command(message) do
+    Map.put(message, :command, "unknown")
+  end
 
   def add_params(message = %{ text: text }) do
     params = String.split(text) |> List.delete_at(0)

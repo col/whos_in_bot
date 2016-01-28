@@ -37,8 +37,13 @@ defmodule WhosInBot.MessageHandlerTest do
     assert r3.status == "closed"
   end
 
-  test "dosn't crash when there is no :text attribute in the message" do
+  test "doesn't crash when there is no :text attribute in the message" do
     {status, response} = MessageHandler.handle_message(message(%{}))
+    assert {status, response} == {:error, "Unknown command"}
+  end
+
+  test "doesn't respond to unknown commands" do
+    {status, response} = MessageHandler.handle_message(message(%{text: "random banter"}))
     assert {status, response} == {:error, "Unknown command"}
   end
 
@@ -58,17 +63,17 @@ defmodule WhosInBot.MessageHandlerTest do
     assert Repo.get_by(RollCall, %{chat_id: @chat.id, status: "open"}) != nil
   end
 
-  test "'/start_roll_call Monday Night Football' responds with 'Monday Night Football roll call started'" do
-    {status, response} = MessageHandler.handle_message(message(%{text: "/start_roll_call Monday Night Football"}))
-    assert {status, response} == {:ok, "Monday Night Football roll call started"}
-  end
-
   test "'/start_roll_call Monday Night Football' creates a new RollCall with a title" do
     assert count(RollCall) == 0
     MessageHandler.handle_message(message(%{text: "/start_roll_call Monday Night Football"}))
     response = Repo.get_by(RollCall, %{chat_id: @chat.id, status: "open"})
     assert response != nil
     assert response.title == "Monday Night Football"
+  end
+
+  test "'/start_roll_call Monday Night Football' doesn't include the title in the response" do
+    {status, response} = MessageHandler.handle_message(message(%{text: "/start_roll_call Monday Night Football"}))
+    assert {status, response} == {:ok, "Roll call started"}
   end
 
   @tag :roll_call_open
@@ -85,10 +90,10 @@ defmodule WhosInBot.MessageHandlerTest do
   end
 
   @tag :roll_call_open
-  test "/end_roll_call responds with the title when it's been set" do
+  test "/end_roll_call does not responds with the title when it's been set" do
     RollCall.changeset(Repo.one(RollCall), %{title: "Monday Night Football"}) |> Repo.update!
     {status, response} = MessageHandler.handle_message(message(%{text: "/end_roll_call"}))
-    assert {status, response} == {:ok, "Monday Night Football roll call ended"}
+    assert {status, response} == {:ok, "Roll call ended"}
   end
 
   test "/end_roll_call responds with an error message when no active roll call exists" do
@@ -167,6 +172,15 @@ defmodule WhosInBot.MessageHandlerTest do
     MessageHandler.handle_message(message(%{text: "/out"}))
     assert Repo.one!(RollCallResponse).status == "out"
   end
+
+
+  # @tag :roll_call_open
+  # test "'/set_in_for @User2' records a response for a different user", %{ roll_call: roll_call } do
+  #   MessageHandler.handle_message(message(%{text: "/set_in_for @User2"}))
+  #   response = Repo.one!(RollCallResponse)
+  #   assert response.status == "in"
+  #   assert response.name == "User2"
+  # end
 
 
   @tag :roll_call_open
