@@ -114,6 +114,12 @@ defmodule WhosInBot.MessageHandlerTest do
     assert {status, response} == {:ok, "1. Fred\n"}
   end
 
+  @tag :roll_call_open
+  test "/in responds with reason" do
+    {status, response} = MessageHandler.handle_message(message(%{text: "/in plus 1"}))
+    assert {status, response} == {:ok, "1. Fred (plus 1)\n"}
+  end
+
   test "/in responds with an error message when no active roll call exists" do
     {status, response} = MessageHandler.handle_message(message(%{text: "/in"}))
     assert {status, response} == {:ok, "No roll call in progress"}
