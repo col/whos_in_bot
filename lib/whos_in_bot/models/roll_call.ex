@@ -101,7 +101,7 @@ defmodule WhosInBot.Models.RollCall do
     in_responses = RollCallResponse |> RollCallResponse.for_roll_call(roll_call) |> RollCallResponse.with_status("in") |> Repo.all
     unless Enum.empty?(in_responses) do
       output = Enum.with_index(in_responses)
-      |> Enum.reduce("", fn({response, index}, acc) -> acc <> "#{index+1}. #{response.name}\n" end)
+      |> Enum.reduce("", fn({response, index}, acc) -> acc <> response_to_string("#{index+1}. ", response) end)
     end
     output
   end
@@ -111,7 +111,7 @@ defmodule WhosInBot.Models.RollCall do
     out_responses = RollCallResponse |> RollCallResponse.for_roll_call(roll_call) |> RollCallResponse.with_status("out") |> Repo.all
     unless Enum.empty?(out_responses) do
       output = output <> "Out\n"
-      output = Enum.reduce(out_responses, output, fn(response, acc) -> acc <> response_to_string(response) end)
+      output = Enum.reduce(out_responses, output, fn(response, acc) -> acc <> response_to_string(" - ", response) end)
     end
     output
   end
@@ -121,16 +121,16 @@ defmodule WhosInBot.Models.RollCall do
     maybe_responses = RollCallResponse |> RollCallResponse.for_roll_call(roll_call) |> RollCallResponse.with_status("maybe") |> Repo.all
     unless Enum.empty?(maybe_responses) do
       output = output <> "Maybe\n"
-      output = Enum.reduce(maybe_responses, output, fn(response, acc) -> acc <> response_to_string(response) end)
+      output = Enum.reduce(maybe_responses, output, fn(response, acc) -> acc <> response_to_string(" - ", response) end)
     end
     output
   end
 
-  defp response_to_string(response = %{reason: reason}) do
+  defp response_to_string(prefix, response = %{reason: reason}) do
     if reason != nil && String.length(reason) > 0 do
-      " - #{response.name} (#{reason})\n"
+      prefix <> "#{response.name} (#{reason})\n"
     else
-      " - #{response.name}\n"
+      prefix <> "#{response.name}\n"
     end
   end
 
