@@ -70,8 +70,42 @@ defmodule WhosInBot.MessageHandler do
     {:ok, "No roll call in progress"}
   end
 
+  defp execute_command(message = %{ command: "/set_in_for", roll_call: roll_call })
+  when roll_call != nil do
+    set_state_for(message, "in")
+    {:ok, RollCall.whos_in_list(message.roll_call)}
+  end
+  defp execute_command(%{ command: "/set_in_for" }) do
+    {:ok, "No roll call in progress"}
+  end
+
+  defp execute_command(message = %{ command: "/set_out_for", roll_call: roll_call })
+  when roll_call != nil do
+    set_state_for(message, "out")
+    {:ok, RollCall.whos_in_list(message.roll_call)}
+  end
+  defp execute_command(%{ command: "/set_out_for" }) do
+    {:ok, "No roll call in progress"}
+  end
+
+  defp execute_command(message = %{ command: "/set_maybe_for", roll_call: roll_call })
+  when roll_call != nil do
+    set_state_for(message, "maybe")
+    {:ok, RollCall.whos_in_list(message.roll_call)}
+  end
+  defp execute_command(%{ command: "/set_maybe_for" }) do
+    {:ok, "No roll call in progress"}
+  end
+
   defp execute_command(_) do
     {:error, "Unknown command"}
+  end
+
+  defp set_state_for(message, status) do
+    message = message
+      |> Map.put(:from, %{ first_name: List.first(message.params) })
+      |> Map.put(:params, List.delete_at(message.params, 0))
+    RollCall.update_attendance(message, status)
   end
 
 end

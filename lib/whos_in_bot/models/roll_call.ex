@@ -58,14 +58,24 @@ defmodule WhosInBot.Models.RollCall do
       |> Repo.update_all(set: [status: "closed"])
   end
 
+
   def update_attendance(message, status) do
-    case Repo.get_by(RollCallResponse, %{ roll_call_id: message.roll_call.id, user_id: message.from.id }) do
+    case response_for_name(message) || response_for_user_id(message) do
       nil  -> Ecto.Model.build(message.roll_call, :responses)
       response -> response
     end
-    |> RollCallResponse.changeset(%{user_id: message.from.id, name: message.from.first_name, status: status, reason: Enum.join(message.params, " ")})
+    |> RollCallResponse.changeset(%{user_id: Map.get(message.from, :id), name: message.from.first_name, status: status, reason: Enum.join(message.params, " ")})
     |> Repo.insert_or_update
   end
+
+  def response_for_name(message) do
+    Repo.get_by(RollCallResponse, %{ roll_call_id: message.roll_call.id, name: message.from.first_name })
+  end
+
+  def response_for_user_id(message) do
+    Repo.get_by(RollCallResponse, %{ roll_call_id: message.roll_call.id, user_id: Map.get(message.from, :id, -1) })
+  end
+
 
   def set_title(roll_call, title) do
     changeset(roll_call, %{title: title}) |> Repo.update!

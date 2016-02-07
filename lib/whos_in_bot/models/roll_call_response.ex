@@ -14,8 +14,8 @@ defmodule WhosInBot.Models.RollCallResponse do
     timestamps
   end
 
-  @required_fields ~w(status name user_id)
-  @optional_fields ~w(reason)
+  @required_fields ~w(status name)
+  @optional_fields ~w(reason user_id)
 
   @doc """
   Creates a changeset based on the `model` and `params`.

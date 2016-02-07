@@ -179,16 +179,6 @@ defmodule WhosInBot.MessageHandlerTest do
     assert Repo.one!(RollCallResponse).status == "out"
   end
 
-
-  # @tag :roll_call_open
-  # test "'/set_in_for @User2' records a response for a different user", %{ roll_call: roll_call } do
-  #   MessageHandler.handle_message(message(%{text: "/set_in_for @User2"}))
-  #   response = Repo.one!(RollCallResponse)
-  #   assert response.status == "in"
-  #   assert response.name == "User2"
-  # end
-
-
   @tag :roll_call_open
   test "/maybe responds correctly" do
     {status, response} = MessageHandler.handle_message(message(%{text: "/maybe"}))
@@ -228,6 +218,58 @@ defmodule WhosInBot.MessageHandlerTest do
     assert Repo.one!(RollCallResponse).status == "maybe"
   end
 
+
+  @tag :roll_call_open
+  test "'/set_in_for OtherUser' records a response for a different user", %{ roll_call: roll_call } do
+    {status, response} = MessageHandler.handle_message(message(%{text: "/set_in_for OtherUser Fred's Friend"}))
+    record = Repo.one!(RollCallResponse)
+    assert record.status == "in"
+    assert record.name == "OtherUser"
+    assert record.user_id == nil
+    assert {status, response} == {:ok, "1. OtherUser (Fred's Friend)\n"}
+  end
+
+  @tag :roll_call_open
+  test "'/set_out_for OtherUser' records a response for a different user", %{ roll_call: roll_call } do
+    {status, response} = MessageHandler.handle_message(message(%{text: "/set_out_for OtherUser Fred's Friend"}))
+    record = Repo.one!(RollCallResponse)
+    assert record.status == "out"
+    assert record.name == "OtherUser"
+    assert record.user_id == nil
+    assert {status, response} == {:ok, "Out\n - OtherUser (Fred's Friend)\n"}
+  end
+
+  @tag :roll_call_open
+  test "'/set_maybe_for OtherUser' records a response for a different user", %{ roll_call: roll_call } do
+    {status, response} = MessageHandler.handle_message(message(%{text: "/set_maybe_for OtherUser Fred's Friend"}))
+    record = Repo.one!(RollCallResponse)
+    assert record.status == "maybe"
+    assert record.name == "OtherUser"
+    assert record.user_id == nil
+    assert {status, response} == {:ok, "Maybe\n - OtherUser (Fred's Friend)\n"}
+  end
+
+  @tag :roll_call_open
+  test "/in after someone else has responded for you", %{ roll_call: roll_call } do
+    Repo.insert!(%RollCallResponse{ roll_call_id: roll_call.id, status: "out", user_id: nil, name: @from.first_name})
+    {status, response} = MessageHandler.handle_message(message(%{text: "/in"}))
+    record = Repo.one!(RollCallResponse)
+    assert record.status == "in"
+    assert record.name == @from.first_name
+    assert record.user_id == @from.id
+    assert {status, response} == {:ok, "1. Fred\n"}
+  end
+
+  @tag :roll_call_open
+  test "'/set_out_for Fred' after Fred has already responded", %{ roll_call: roll_call } do
+    Repo.insert!(%RollCallResponse{ roll_call_id: roll_call.id, status: "in", user_id: @from.id, name: @from.first_name})
+    {status, response} = MessageHandler.handle_message(message(%{text: "/set_out_for Fred"}))
+    record = Repo.one!(RollCallResponse)
+    assert record.status == "out"
+    assert record.name == @from.first_name
+    assert record.user_id == nil
+    assert {status, response} == {:ok, "Out\n - Fred\n"}
+  end
 
   @tag :roll_call_open
   test "/whos_in lists all the in and out responses", %{ roll_call: roll_call } do
