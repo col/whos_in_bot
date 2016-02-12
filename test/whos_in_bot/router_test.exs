@@ -27,7 +27,6 @@ defmodule WhosInBot.RouterTest do
     assert conn.resp_body == ""
   end
 
-
   test "GET /anything_else returns a 404 error" do
     conn = conn(:post, "/anything_else")
     conn = Router.call(conn, @opts)

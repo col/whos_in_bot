@@ -4,7 +4,7 @@ defmodule WhosInBot.Message do
   def add_command(message = %{ text: text }) do
     command = String.split(text) |> List.first
     if String.contains?(command, "@") do
-      {command, _} = String.split(command, "@") |> List.to_tuple
+      command = String.split(command, "@") |> List.first
     end
     Map.put(message, :command, command)
   end

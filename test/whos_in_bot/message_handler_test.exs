@@ -57,6 +57,11 @@ defmodule WhosInBot.MessageHandlerTest do
     assert {status, response} == {:ok, "Roll call started"}
   end
 
+  test "handles messages when they contain multiple @ in the bot name (Prod Bug)" do
+    {status, response} = MessageHandler.handle_message(message(%{text: "/start_roll_call@Bot@Name"}))
+    assert {status, response} == {:ok, "Roll call started"}
+  end
+
   test "/start_roll_call creates a new RollCall" do
     assert count(RollCall) == 0
     MessageHandler.handle_message(message(%{text: "/start_roll_call"}))
