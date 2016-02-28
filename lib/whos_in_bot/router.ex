@@ -1,5 +1,6 @@
 defmodule WhosInBot.Router do
   use Plug.Router
+  use Honeybadger.Plug
   import Atom.Chars
   alias WhosInBot.MessageHandler
 

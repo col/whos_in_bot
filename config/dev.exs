@@ -12,6 +12,9 @@ config :whos_in_bot, WhosInBot.Repo,
   hostname: "localhost",
   pool_size: 10
 
+config :honeybadger, 
+  :environment_name, :dev
+
 # Load the dev secrets if it exists. This can be used to load the Bot Token.
 if File.exists?("dev.secret.exs") do
   import_config "dev.secret.exs"

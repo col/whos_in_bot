@@ -14,7 +14,7 @@ defmodule WhosInBot.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :cowboy, :nadia, :ecto, :postgrex],
+    [applications: [:honeybadger, :logger, :cowboy, :nadia, :ecto, :postgrex],
      mod: {WhosInBot, []}]
   end
 
@@ -32,6 +32,7 @@ defmodule WhosInBot.Mixfile do
      {:plug, "~> 1.0"},
      {:ecto, "~> 1.1"},
      {:postgrex, "~> 0.10"},
-     {:nadia, "~> 0.3"}]
+     {:nadia, "~> 0.3"},
+     {:honeybadger, "~> 0.1"}]
   end
 end

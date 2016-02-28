@@ -11,3 +11,6 @@ config :whos_in_bot, WhosInBot.Repo,
   database: "whos_in_bot_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :honeybadger,
+  :environment_name, :test
