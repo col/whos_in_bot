@@ -125,6 +125,12 @@ defmodule WhosInBot.MessageHandlerTest do
     assert {status, response} == {:ok, "1. Fred (plus 1)\n"}
   end
 
+  @tag :roll_call_open
+  test "/in|out|maybe doesn't add () if the reason already has them" do
+    {status, response} = MessageHandler.handle_message(message(%{text: "/in (plus 1)"}))
+    assert {status, response} == {:ok, "1. Fred (plus 1)\n"}
+  end
+
   test "/in responds with an error message when no active roll call exists" do
     {status, response} = MessageHandler.handle_message(message(%{text: "/in"}))
     assert {status, response} == {:ok, "No roll call in progress"}
@@ -225,7 +231,7 @@ defmodule WhosInBot.MessageHandlerTest do
 
 
   @tag :roll_call_open
-  test "'/set_in_for OtherUser' records a response for a different user", %{ roll_call: roll_call } do
+  test "'/set_in_for OtherUser' records a response for a different user" do
     {status, response} = MessageHandler.handle_message(message(%{text: "/set_in_for OtherUser Fred's Friend"}))
     record = Repo.one!(RollCallResponse)
     assert record.status == "in"
@@ -235,7 +241,7 @@ defmodule WhosInBot.MessageHandlerTest do
   end
 
   @tag :roll_call_open
-  test "'/set_out_for OtherUser' records a response for a different user", %{ roll_call: roll_call } do
+  test "'/set_out_for OtherUser' records a response for a different user" do
     {status, response} = MessageHandler.handle_message(message(%{text: "/set_out_for OtherUser Fred's Friend"}))
     record = Repo.one!(RollCallResponse)
     assert record.status == "out"
@@ -245,7 +251,7 @@ defmodule WhosInBot.MessageHandlerTest do
   end
 
   @tag :roll_call_open
-  test "'/set_maybe_for OtherUser' records a response for a different user", %{ roll_call: roll_call } do
+  test "'/set_maybe_for OtherUser' records a response for a different user" do
     {status, response} = MessageHandler.handle_message(message(%{text: "/set_maybe_for OtherUser Fred's Friend"}))
     record = Repo.one!(RollCallResponse)
     assert record.status == "maybe"

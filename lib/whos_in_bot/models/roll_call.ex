@@ -1,6 +1,5 @@
 defmodule WhosInBot.Models.RollCall do
   use Ecto.Schema
-  import Ecto
   import Ecto.Changeset
   import Ecto.Query, only: [from: 1, from: 2]
   alias WhosInBot.Repo
@@ -64,7 +63,12 @@ defmodule WhosInBot.Models.RollCall do
       nil  -> Ecto.Model.build(message.roll_call, :responses)
       response -> response
     end
-    |> RollCallResponse.changeset(%{user_id: Map.get(message.from, :id), name: message.from.first_name, status: status, reason: Enum.join(message.params, " ")})
+    |> RollCallResponse.changeset(%{
+      user_id: Map.get(message.from, :id),
+      name: message.from.first_name,
+      status: status,
+      reason: Enum.join(message.params, " ")
+      })
     |> Repo.insert_or_update
   end
 
@@ -138,9 +142,18 @@ defmodule WhosInBot.Models.RollCall do
 
   defp response_to_string(prefix, response = %{reason: reason}) do
     if reason != nil && String.length(reason) > 0 do
-      prefix <> "#{response.name} (#{reason})\n"
+      prefix <> "#{response.name} #{parenthesize_reason(reason)}\n"
     else
       prefix <> "#{response.name}\n"
+    end
+  end
+
+  defp parenthesize_reason(reason) do
+    case reason do
+      "("<>_ ->
+          reason
+      _ ->
+        "(#{reason})"
     end
   end
 
