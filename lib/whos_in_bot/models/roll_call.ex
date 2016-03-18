@@ -10,13 +10,14 @@ defmodule WhosInBot.Models.RollCall do
     field :date, :integer
     field :status, :string
     field :title, :string
+    field :quiet, :boolean, default: false
     has_many :responses, RollCallResponse
 
     timestamps
   end
 
   @required_fields ~w(chat_id status)
-  @optional_fields ~w(date title)
+  @optional_fields ~w(date title quiet)
 
   def changeset(model, params \\ :empty) do
     model

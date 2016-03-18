@@ -1,6 +1,7 @@
 defmodule WhosInBot.MessageHandler do
   import WhosInBot.Message
   alias WhosInBot.Models.RollCall
+  alias WhosInBot.Repo
 
   def handle_message(message) do
     message
@@ -95,6 +96,14 @@ defmodule WhosInBot.MessageHandler do
   end
   defp execute_command(%{ command: "/set_maybe_for" }) do
     {:ok, "No roll call in progress"}
+  end
+
+  defp execute_command(message = %{ command: "/shh" }) do
+    changeset = RollCall.changeset(message.roll_call, %{ quiet: true })
+    case Repo.update(changeset) do
+      {:ok, _} -> {:ok, "Ok fine, I'll be very quiet."}
+      {:error, _} -> {:ok, "I'm sorry Dave, I'm afraid I can't do that."}
+    end
   end
 
   defp execute_command(_) do

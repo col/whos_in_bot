@@ -342,4 +342,14 @@ defmodule WhosInBot.MessageHandlerTest do
     assert roll_call.title == "Monday Night Football"
   end
 
+  @tag :roll_call_open
+  test "/shh sets the quiet flag to true", %{ roll_call: roll_call } do
+    roll_call = Repo.get(RollCall, roll_call.id)
+    assert false == roll_call.quiet
+    {status, response} = MessageHandler.handle_message(message(%{text: "/shh"}))
+    assert {status, response} == {:ok, "Ok fine, I'll be very quiet."}
+    roll_call = Repo.get(RollCall, roll_call.id)
+    assert true == roll_call.quiet
+  end
+
 end
