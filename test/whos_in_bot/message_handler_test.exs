@@ -120,6 +120,17 @@ defmodule WhosInBot.MessageHandlerTest do
   end
 
   @tag :roll_call_open
+  test "/in responds with minimal info when in quiet mode", %{ roll_call: roll_call } do
+    RollCall.changeset(roll_call, %{ quiet: true }) |> Repo.update!
+    %RollCallResponse{ roll_call_id: roll_call.id, status: "in", user_id: 1, name: "User 1"}
+      |> Repo.insert!
+    %RollCallResponse{ roll_call_id: roll_call.id, status: "out", user_id: 2, name: "User 2"}
+      |> Repo.insert!
+    {status, response} = MessageHandler.handle_message(message(%{text: "/in"}))
+    assert {status, response} == {:ok, "Fred is in!\nTotal: 2 In, 1 Out, 0 Maybe\n"}
+  end
+
+  @tag :roll_call_open
   test "/in responds with reason" do
     {status, response} = MessageHandler.handle_message(message(%{text: "/in plus 1"}))
     assert {status, response} == {:ok, "1. Fred (plus 1)\n"}

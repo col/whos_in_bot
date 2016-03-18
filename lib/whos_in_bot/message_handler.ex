@@ -28,8 +28,8 @@ defmodule WhosInBot.MessageHandler do
 
   defp execute_command(message = %{ command: "/in", roll_call: roll_call })
   when roll_call != nil do
-    RollCall.update_attendance(message, "in")
-    {:ok, RollCall.whos_in_list(message.roll_call)}
+    {:ok, roll_call_response} = RollCall.update_attendance(message, "in")
+    {:ok, RollCall.attendance_updated_message(message.roll_call, roll_call_response)}
   end
   defp execute_command(%{ command: "/in" }) do
     {:ok, "No roll call in progress"}

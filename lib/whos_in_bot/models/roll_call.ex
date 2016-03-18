@@ -3,7 +3,7 @@ defmodule WhosInBot.Models.RollCall do
   import Ecto.Changeset
   import Ecto.Query, only: [from: 1, from: 2]
   alias WhosInBot.Repo
-  alias WhosInBot.Models.RollCallResponse
+  alias WhosInBot.Models.{RollCall, RollCallResponse}
 
   schema "roll_calls" do
     field :chat_id, :integer
@@ -81,9 +81,19 @@ defmodule WhosInBot.Models.RollCall do
     Repo.get_by(RollCallResponse, %{ roll_call_id: message.roll_call.id, user_id: Map.get(message.from, :id, -1) })
   end
 
-
   def set_title(roll_call, title) do
     changeset(roll_call, %{title: title}) |> Repo.update!
+  end
+
+  def attendance_updated_message(roll_call = %{ quiet: true }, response) do
+    num_in = RollCall.responses(roll_call, "in") |> Enum.count
+    num_out = RollCall.responses(roll_call, "out") |> Enum.count
+    num_maybe = RollCall.responses(roll_call, "maybe") |> Enum.count
+    "#{response.name} is #{response.status}!\nTotal: #{num_in} In, #{num_out} Out, #{num_maybe} Maybe\n"
+  end
+
+  def attendance_updated_message(roll_call, _) do
+    whos_in_list(roll_call)
   end
 
   def whos_in_list(roll_call) do
@@ -111,9 +121,13 @@ defmodule WhosInBot.Models.RollCall do
     Enum.join(output, "\n")
   end
 
+  def responses(roll_call, status) do
+    RollCallResponse |> RollCallResponse.for_roll_call(roll_call) |> RollCallResponse.with_status(status) |> Repo.all
+  end
+
   defp in_response_list(roll_call) do
     output = ""
-    in_responses = RollCallResponse |> RollCallResponse.for_roll_call(roll_call) |> RollCallResponse.with_status("in") |> Repo.all
+    in_responses = RollCall.responses(roll_call, "in")
     unless Enum.empty?(in_responses) do
       output = Enum.with_index(in_responses)
       |> Enum.reduce("", fn({response, index}, acc) -> acc <> response_to_string("#{index+1}. ", response) end)
@@ -123,7 +137,7 @@ defmodule WhosInBot.Models.RollCall do
 
   defp out_response_list(roll_call) do
     output = ""
-    out_responses = RollCallResponse |> RollCallResponse.for_roll_call(roll_call) |> RollCallResponse.with_status("out") |> Repo.all
+    out_responses = RollCall.responses(roll_call, "out")
     unless Enum.empty?(out_responses) do
       output = output <> "Out\n"
       output = Enum.reduce(out_responses, output, fn(response, acc) -> acc <> response_to_string(" - ", response) end)
@@ -133,7 +147,7 @@ defmodule WhosInBot.Models.RollCall do
 
   defp maybe_response_list(roll_call) do
     output = ""
-    maybe_responses = RollCallResponse |> RollCallResponse.for_roll_call(roll_call) |> RollCallResponse.with_status("maybe") |> Repo.all
+    maybe_responses = RollCall.responses(roll_call, "maybe")
     unless Enum.empty?(maybe_responses) do
       output = output <> "Maybe\n"
       output = Enum.reduce(maybe_responses, output, fn(response, acc) -> acc <> response_to_string(" - ", response) end)
