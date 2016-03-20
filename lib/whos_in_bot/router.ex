@@ -4,17 +4,21 @@ defmodule WhosInBot.Router do
   import Atom.Chars
   alias WhosInBot.MessageHandler
 
+  plug Beaker.Integrations.Phoenix
   plug Plug.Parsers, parsers: [:urlencoded, :json],
                      pass:  ["application/json"],
                      json_decoder: Poison
-
   plug :match
   plug :dispatch
 
   get "/" do
     conn |> send_resp(200, "WhosInBot")
   end
-  
+
+  get "/stats" do
+    conn |> send_resp(200, "Requests: #{Beaker.Counter.get("Phoenix:Requests")}")
+  end
+
   post "/telegram/message" do
     message = Map.get(to_atom(conn.params), :message, %{})
     case MessageHandler.handle_message(message) do

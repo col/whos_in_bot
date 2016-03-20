@@ -14,7 +14,7 @@ defmodule WhosInBot.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:honeybadger, :logger, :cowboy, :nadia, :ecto, :postgrex],
+    [applications: [:honeybadger, :logger, :cowboy, :nadia, :ecto, :postgrex, :beaker],
      mod: {WhosInBot, []}]
   end
 
@@ -28,11 +28,14 @@ defmodule WhosInBot.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:cowboy, "~> 1.0"},
-     {:plug, "~> 1.0"},
-     {:ecto, "~> 1.1"},
-     {:postgrex, "~> 0.10"},
-     {:nadia, "~> 0.3"},
-     {:honeybadger, "~> 0.1"}]
+    [
+      {:beaker, git: "https://github.com/col/beaker.git"},
+      {:cowboy, "~> 1.0"},
+      {:plug, "~> 1.0"},
+      {:ecto, "~> 1.1"},
+      {:postgrex, "~> 0.11"},
+      {:nadia, "~> 0.3"},
+      {:honeybadger, "~> 0.1"}
+    ]
   end
 end

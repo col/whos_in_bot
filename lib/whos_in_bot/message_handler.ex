@@ -71,7 +71,7 @@ defmodule WhosInBot.MessageHandler do
     {:ok, "No roll call in progress"}
   end
 
-  defp execute_command(message = %{ command: "/set_in_for", params: [], roll_call: roll_call })
+  defp execute_command(%{ command: "/set_in_for", params: [], roll_call: roll_call })
   when roll_call != nil do
     {:ok, "Please provide the persons first name.\n"}
   end
@@ -84,7 +84,7 @@ defmodule WhosInBot.MessageHandler do
     {:ok, "No roll call in progress"}
   end
 
-  defp execute_command(message = %{ command: "/set_out_for", params: [], roll_call: roll_call })
+  defp execute_command(%{ command: "/set_out_for", params: [], roll_call: roll_call })
   when roll_call != nil do
     {:ok, "Please provide the persons first name.\n"}
   end
@@ -97,7 +97,7 @@ defmodule WhosInBot.MessageHandler do
     {:ok, "No roll call in progress"}
   end
 
-  defp execute_command(message = %{ command: "/set_maybe_for", params: [], roll_call: roll_call })
+  defp execute_command(%{ command: "/set_maybe_for", params: [], roll_call: roll_call })
   when roll_call != nil do
     {:ok, "Please provide the persons first name.\n"}
   end
