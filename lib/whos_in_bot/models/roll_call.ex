@@ -89,7 +89,12 @@ defmodule WhosInBot.Models.RollCall do
     num_in = RollCall.responses(roll_call, "in") |> Enum.count
     num_out = RollCall.responses(roll_call, "out") |> Enum.count
     num_maybe = RollCall.responses(roll_call, "maybe") |> Enum.count
-    "#{response.name} is #{response.status}!\nTotal: #{num_in} In, #{num_out} Out, #{num_maybe} Maybe\n"
+    response = case response.status do
+      "in" -> "#{response.name} is in!"
+      "out" -> "#{response.name} is out!"
+      "maybe" -> "#{response.name} might come."
+    end
+    "#{response}\nTotal: #{num_in} In, #{num_out} Out, #{num_maybe} Maybe\n"
   end
 
   def attendance_updated_message(roll_call, _) do

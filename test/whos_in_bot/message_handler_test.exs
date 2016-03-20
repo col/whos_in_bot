@@ -18,12 +18,20 @@ defmodule WhosInBot.MessageHandlerTest do
 
   setup config do
     Ecto.Adapters.SQL.restart_test_transaction(WhosInBot.Repo, [])
+    roll_call = responses = nil
+
     if config[:roll_call_open] do
-      roll_call = Repo.insert!(%RollCall{ chat_id: @chat.id, status: "open" })
-      {:ok, roll_call: roll_call}
-    else
-      :ok
+      roll_call = %RollCall{ chat_id: @chat.id, status: "open" } |> Repo.insert!
     end
+
+    if config[:sample_responses] do
+      response1 = %RollCallResponse{ roll_call_id: roll_call.id, status: "in", user_id: 1, name: "User 1"} |> Repo.insert!
+      response2 = %RollCallResponse{ roll_call_id: roll_call.id, status: "out", user_id: 2, name: "User 2"} |> Repo.insert!
+      response3 = %RollCallResponse{ roll_call_id: roll_call.id, status: "maybe", user_id: 3, name: "User 3"} |> Repo.insert!
+      responses = [response1, response2, response3]
+    end
+
+    {:ok, roll_call: roll_call}
   end
 
   @tag :roll_call_open
@@ -168,6 +176,13 @@ defmodule WhosInBot.MessageHandlerTest do
     assert {status, response} == {:ok, "Out\n - Fred\n"}
   end
 
+  @tag roll_call_open: true, sample_responses: true
+  test "/out responds with minimal info when out quiet mode", %{ roll_call: roll_call } do
+    RollCall.changeset(roll_call, %{ quiet: true }) |> Repo.update!
+    {status, response} = MessageHandler.handle_message(message(%{text: "/out"}))
+    assert {status, response} == {:ok, "Fred is out!\nTotal: 1 In, 2 Out, 1 Maybe\n"}
+  end
+
   @tag :roll_call_open
   test "/out includes the reason in the response when it's provided" do
     {status, response} = MessageHandler.handle_message(message(%{text: "/out Injured"}))
@@ -205,6 +220,13 @@ defmodule WhosInBot.MessageHandlerTest do
   test "/maybe responds correctly" do
     {status, response} = MessageHandler.handle_message(message(%{text: "/maybe"}))
     assert {status, response} == {:ok, "Maybe\n - Fred\n"}
+  end
+
+  @tag roll_call_open: true, sample_responses: true
+  test "/maybe responds with minimal info when out quiet mode", %{ roll_call: roll_call } do
+    RollCall.changeset(roll_call, %{ quiet: true }) |> Repo.update!
+    {status, response} = MessageHandler.handle_message(message(%{text: "/maybe"}))
+    assert {status, response} == {:ok, "Fred might come.\nTotal: 1 In, 1 Out, 2 Maybe\n"}
   end
 
   @tag :roll_call_open
@@ -293,21 +315,17 @@ defmodule WhosInBot.MessageHandlerTest do
     assert {status, response} == {:ok, "Out\n - Fred\n"}
   end
 
-  @tag :roll_call_open
-  test "/whos_in lists all the in and out responses", %{ roll_call: roll_call } do
-    Repo.insert!(%RollCallResponse{ roll_call_id: roll_call.id, status: "in", user_id: 1, name: "User 1"})
-    Repo.insert!(%RollCallResponse{ roll_call_id: roll_call.id, status: "out", user_id: 2, name: "User 2"})
+  @tag roll_call_open: true, sample_responses: true
+  test "/whos_in lists all the in, out and maybe responses" do
     {status, response} = MessageHandler.handle_message(message(%{text: "/whos_in"}))
-    assert {status, response} == {:ok, "1. User 1\n\nOut\n - User 2\n"}
+    assert {status, response} == {:ok, "1. User 1\n\nMaybe\n - User 3\n\nOut\n - User 2\n"}
   end
 
-  @tag :roll_call_open
+  @tag roll_call_open: true, sample_responses: true
   test "/whos_in lists includes the title when it's been set", %{ roll_call: roll_call } do
     RollCall.changeset(roll_call, %{title: "Monday Night Football"}) |> Repo.update!
-    Repo.insert!(%RollCallResponse{ roll_call_id: roll_call.id, status: "in", user_id: 1, name: "User 1"})
-    Repo.insert!(%RollCallResponse{ roll_call_id: roll_call.id, status: "out", user_id: 2, name: "User 2"})
     {status, response} = MessageHandler.handle_message(message(%{text: "/whos_in"}))
-    assert {status, response} == {:ok, "Monday Night Football\n1. User 1\n\nOut\n - User 2\n"}
+    assert {status, response} == {:ok, "Monday Night Football\n1. User 1\n\nMaybe\n - User 3\n\nOut\n - User 2\n"}
   end
 
   test "/whos_in responds with an error message when no active roll call exists" do
@@ -315,18 +333,25 @@ defmodule WhosInBot.MessageHandlerTest do
     assert {status, response} == {:ok, "No roll call in progress"}
   end
 
-  @tag :roll_call_open
-  test "/whos_in doesn't print an empty out list", %{ roll_call: roll_call } do
-    Repo.insert!(%RollCallResponse{ roll_call_id: roll_call.id, status: "in", user_id: 1, name: "User 1"})
+  @tag roll_call_open: true, sample_responses: true
+  test "/whos_in doesn't print an empty 'in' list" do
+    Repo.delete_all(RollCallResponse.with_status(RollCallResponse, "in"))
     {status, response} = MessageHandler.handle_message(message(%{text: "/whos_in"}))
-    assert {status, response} == {:ok, "1. User 1\n"}
+    assert {status, response} == {:ok, "Maybe\n - User 3\n\nOut\n - User 2\n"}
   end
 
-  @tag :roll_call_open
-  test "/whos_in doesn't print an empty in list", %{ roll_call: roll_call } do
-    Repo.insert!(%RollCallResponse{ roll_call_id: roll_call.id, status: "out", user_id: 2, name: "User 2"})
+  @tag roll_call_open: true, sample_responses: true
+  test "/whos_in doesn't print an empty 'out' list" do
+    Repo.delete_all(RollCallResponse.with_status(RollCallResponse, "out"))
     {status, response} = MessageHandler.handle_message(message(%{text: "/whos_in"}))
-    assert {status, response} == {:ok, "Out\n - User 2\n"}
+    assert {status, response} == {:ok, "1. User 1\n\nMaybe\n - User 3\n"}
+  end
+
+  @tag roll_call_open: true, sample_responses: true
+  test "/whos_in doesn't print an empty 'maybe' list" do
+    Repo.delete_all(RollCallResponse.with_status(RollCallResponse, "maybe"))
+    {status, response} = MessageHandler.handle_message(message(%{text: "/whos_in"}))
+    assert {status, response} == {:ok, "1. User 1\n\nOut\n - User 2\n"}
   end
 
   @tag :roll_call_open

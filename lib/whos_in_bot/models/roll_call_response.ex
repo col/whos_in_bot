@@ -35,7 +35,11 @@ defmodule WhosInBot.Models.RollCallResponse do
 
   def with_status(query, status) do
     from r in query,
-    where: r.status == ^status,
+    where: r.status == ^status
+  end
+
+  def ordered(query, status) do
+    from r in query,
     order_by: r.updated_at
   end
 
