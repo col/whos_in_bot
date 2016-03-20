@@ -274,6 +274,14 @@ defmodule WhosInBot.MessageHandlerTest do
   end
 
   @tag :roll_call_open
+  test "'/set_in_for' without a user name param prints a helpful message" do
+    {status, response} = MessageHandler.handle_message(message(%{text: "/set_in_for"}))
+    record = Repo.one(RollCallResponse)
+    assert record == nil
+    assert {status, response} == {:ok, "Please provide the persons first name.\n"}
+  end
+
+  @tag :roll_call_open
   test "'/set_out_for OtherUser' records a response for a different user" do
     {status, response} = MessageHandler.handle_message(message(%{text: "/set_out_for OtherUser Fred's Friend"}))
     record = Repo.one!(RollCallResponse)
@@ -284,6 +292,14 @@ defmodule WhosInBot.MessageHandlerTest do
   end
 
   @tag :roll_call_open
+  test "'/set_out_for' without a user name param prints a helpful message" do
+    {status, response} = MessageHandler.handle_message(message(%{text: "/set_out_for"}))
+    record = Repo.one(RollCallResponse)
+    assert record == nil
+    assert {status, response} == {:ok, "Please provide the persons first name.\n"}
+  end
+
+  @tag :roll_call_open
   test "'/set_maybe_for OtherUser' records a response for a different user" do
     {status, response} = MessageHandler.handle_message(message(%{text: "/set_maybe_for OtherUser Fred's Friend"}))
     record = Repo.one!(RollCallResponse)
@@ -291,6 +307,14 @@ defmodule WhosInBot.MessageHandlerTest do
     assert record.name == "OtherUser"
     assert record.user_id == nil
     assert {status, response} == {:ok, "Maybe\n - OtherUser (Fred's Friend)\n"}
+  end
+
+  @tag :roll_call_open
+  test "'/set_maybe_for' without a user name param prints a helpful message" do
+    {status, response} = MessageHandler.handle_message(message(%{text: "/set_maybe_for"}))
+    record = Repo.one(RollCallResponse)
+    assert record == nil
+    assert {status, response} == {:ok, "Please provide the persons first name.\n"}
   end
 
   @tag :roll_call_open
