@@ -101,7 +101,15 @@ defmodule WhosInBot.MessageHandler do
   defp execute_command(message = %{ command: "/shh" }) do
     changeset = RollCall.changeset(message.roll_call, %{ quiet: true })
     case Repo.update(changeset) do
-      {:ok, _} -> {:ok, "Ok fine, I'll be very quiet."}
+      {:ok, _} -> {:ok, "Ok fine, I'll be quiet. 🤐"}
+      {:error, _} -> {:ok, "I'm sorry Dave, I'm afraid I can't do that."}
+    end
+  end
+
+  defp execute_command(message = %{ command: "/louder" }) do
+    changeset = RollCall.changeset(message.roll_call, %{ quiet: false })
+    case Repo.update(changeset) do
+      {:ok, _} -> {:ok, "Sure. 😃\n"<>RollCall.whos_in_list(message.roll_call)}
       {:error, _} -> {:ok, "I'm sorry Dave, I'm afraid I can't do that."}
     end
   end

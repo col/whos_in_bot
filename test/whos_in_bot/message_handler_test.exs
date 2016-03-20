@@ -355,12 +355,21 @@ defmodule WhosInBot.MessageHandlerTest do
 
   @tag :roll_call_open
   test "/shh sets the quiet flag to true", %{ roll_call: roll_call } do
-    roll_call = Repo.get(RollCall, roll_call.id)
     assert false == roll_call.quiet
     {status, response} = MessageHandler.handle_message(message(%{text: "/shh"}))
-    assert {status, response} == {:ok, "Ok fine, I'll be very quiet."}
+    assert {status, response} == {:ok, "Ok fine, I'll be quiet. 🤐"}
     roll_call = Repo.get(RollCall, roll_call.id)
     assert true == roll_call.quiet
+  end
+
+  @tag :roll_call_open
+  test "/louder sets the quiet flag to false", %{ roll_call: roll_call } do
+    Repo.insert!(%RollCallResponse{ roll_call_id: roll_call.id, status: "in", user_id: nil, name: @from.first_name})
+    assert false == roll_call.quiet
+    {status, response} = MessageHandler.handle_message(message(%{text: "/louder"}))
+    assert {status, response} == {:ok, "Sure. 😃\n1. Fred\n"}
+    roll_call = Repo.get(RollCall, roll_call.id)
+    assert false == roll_call.quiet
   end
 
 end
