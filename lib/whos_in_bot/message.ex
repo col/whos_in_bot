@@ -1,15 +1,19 @@
 defmodule WhosInBot.Message do
   alias WhosInBot.Models.RollCall
 
-  def add_command(message = %{ text: text }) do
-    command = String.split(text) |> List.first
+  def is_known_command(command) do
+    Enum.member?(~w(end_roll_call in out maybe whos_in set_title set_in_for set_out_for set_maybe_for shh louder), command)
+  end
+
+  def add_command(message = %{ text: "/"<>command }) do
+    command = String.split(command) |> List.first
     if String.contains?(command, "@") do
       command = String.split(command, "@") |> List.first
     end
     Map.put(message, :command, command)
   end
   def add_command(message) do
-    Map.put(message, :command, "unknown")
+    Map.put(message, :command, nil)
   end
 
   def add_params(message = %{ text: text }) do

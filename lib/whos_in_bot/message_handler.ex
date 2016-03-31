@@ -11,74 +11,81 @@ defmodule WhosInBot.MessageHandler do
     |> execute_command
   end
 
-  defp execute_command(message = %{ command: "/start_roll_call" }) do
+  defp execute_command(%{ command: nil }) do
+    {:error, "Not a bot command"}
+  end
+
+  defp execute_command(message = %{ command: "start_roll_call" }) do
     RollCall.close_existing_roll_calls(message)
     RollCall.create_roll_call(message)
     {:ok, "Roll call started"}
   end
 
-  defp execute_command(%{ roll_call: nil }) do
-    {:ok, "No roll call in progress"}
+  defp execute_command(%{ command: command, roll_call: nil }) do
+    case is_known_command(command) do
+      true -> {:ok, "No roll call in progress"}
+      false -> {:error, "Unknown command"}
+    end
   end
 
-  defp execute_command(message = %{ command: "/end_roll_call" }) do
+  defp execute_command(message = %{ command: "end_roll_call" }) do
     RollCall.close_existing_roll_calls(message)
     {:ok, "Roll call ended"}
   end
 
-  defp execute_command(message = %{ command: "/in" }) do
+  defp execute_command(message = %{ command: "in" }) do
     {:ok, roll_call_response} = RollCall.update_attendance(message, "in")
     {:ok, RollCall.attendance_updated_message(message.roll_call, roll_call_response)}
   end
 
-  defp execute_command(message = %{ command: "/out" }) do
+  defp execute_command(message = %{ command: "out" }) do
     {:ok, roll_call_response} = RollCall.update_attendance(message, "out")
     {:ok, RollCall.attendance_updated_message(message.roll_call, roll_call_response)}
   end
 
-  defp execute_command(message = %{ command: "/maybe" }) do
+  defp execute_command(message = %{ command: "maybe" }) do
     {:ok, roll_call_response} = RollCall.update_attendance(message, "maybe")
     {:ok, RollCall.attendance_updated_message(message.roll_call, roll_call_response)}
   end
 
-  defp execute_command(message = %{ command: "/whos_in"}) do
+  defp execute_command(message = %{ command: "whos_in"}) do
     {:ok, RollCall.whos_in_list(message.roll_call)}
   end
 
-  defp execute_command(message = %{ command: "/set_title" }) do
+  defp execute_command(message = %{ command: "set_title" }) do
     title = Enum.join(message.params, " ")
     RollCall.set_title(message.roll_call, title)
     {:ok, "Roll call title set"}
   end
 
-  defp execute_command(%{ command: "/set_in_for", params: [] }) do
+  defp execute_command(%{ command: "set_in_for", params: [] }) do
     {:ok, "Please provide the persons first name.\n"}
   end
 
-  defp execute_command(message = %{ command: "/set_in_for" }) do
+  defp execute_command(message = %{ command: "set_in_for" }) do
     set_state_for(message, "in")
     {:ok, RollCall.whos_in_list(message.roll_call)}
   end
 
-  defp execute_command(%{ command: "/set_out_for", params: [] }) do
+  defp execute_command(%{ command: "set_out_for", params: [] }) do
     {:ok, "Please provide the persons first name.\n"}
   end
 
-  defp execute_command(message = %{ command: "/set_out_for" }) do
+  defp execute_command(message = %{ command: "set_out_for" }) do
     set_state_for(message, "out")
     {:ok, RollCall.whos_in_list(message.roll_call)}
   end
 
-  defp execute_command(%{ command: "/set_maybe_for", params: [] }) do
+  defp execute_command(%{ command: "set_maybe_for", params: [] }) do
     {:ok, "Please provide the persons first name.\n"}
   end
 
-  defp execute_command(message = %{ command: "/set_maybe_for" }) do
+  defp execute_command(message = %{ command: "set_maybe_for" }) do
     set_state_for(message, "maybe")
     {:ok, RollCall.whos_in_list(message.roll_call)}
   end
 
-  defp execute_command(message = %{ command: "/shh" }) do
+  defp execute_command(message = %{ command: "shh" }) do
     changeset = RollCall.changeset(message.roll_call, %{ quiet: true })
     case Repo.update(changeset) do
       {:ok, _} -> {:ok, "Ok fine, I'll be quiet. 🤐"}
@@ -86,7 +93,7 @@ defmodule WhosInBot.MessageHandler do
     end
   end
 
-  defp execute_command(message = %{ command: "/louder" }) do
+  defp execute_command(message = %{ command: "louder" }) do
     changeset = RollCall.changeset(message.roll_call, %{ quiet: false })
     case Repo.update(changeset) do
       {:ok, _} -> {:ok, "Sure. 😃\n"<>RollCall.whos_in_list(message.roll_call)}

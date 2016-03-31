@@ -34,6 +34,11 @@ defmodule WhosInBot.MessageHandlerTest do
     {:ok, roll_call: roll_call}
   end
 
+  test "does not respond to normal chat messages" do
+    {status, response} = MessageHandler.handle_message(message(%{text: "Hey, what's up guys?"}))
+    assert {status, response} == {:error, "Not a bot command"}
+  end
+
   @tag :roll_call_open
   test "/in, if there happens to be more than one open roll call, it will close them" do
     Repo.insert!(%RollCall{ chat_id: @chat.id, status: "open" })
@@ -48,12 +53,12 @@ defmodule WhosInBot.MessageHandlerTest do
   @tag :roll_call_open
   test "doesn't crash when there is no :text attribute in the message" do
     {status, response} = MessageHandler.handle_message(message(%{}))
-    assert {status, response} == {:error, "Unknown command"}
+    assert {status, response} == {:error, "Not a bot command"}
   end
 
   @tag :roll_call_open
   test "doesn't respond to unknown commands" do
-    {status, response} = MessageHandler.handle_message(message(%{text: "random banter"}))
+    {status, response} = MessageHandler.handle_message(message(%{text: "/some_unknown_command"}))
     assert {status, response} == {:error, "Unknown command"}
   end
 
