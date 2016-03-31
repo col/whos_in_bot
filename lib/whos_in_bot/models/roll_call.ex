@@ -102,6 +102,7 @@ defmodule WhosInBot.Models.RollCall do
   end
 
   def whos_in_list(roll_call) do
+    # TODO: this could definitely do with a functional refactoring!
     output = []
 
     if has_title?(roll_call) do
@@ -123,7 +124,16 @@ defmodule WhosInBot.Models.RollCall do
       output = output ++ [out_list]
     end
 
+    output = case Enum.count(responses(roll_call)) do
+      0 -> output ++ ["No responses yet. 😢"]
+      _ -> output
+    end
+
     Enum.join(output, "\n")
+  end
+
+  def responses(roll_call) do
+    RollCallResponse |> RollCallResponse.for_roll_call(roll_call) |> Repo.all
   end
 
   def responses(roll_call, status) do

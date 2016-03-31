@@ -385,6 +385,12 @@ defmodule WhosInBot.MessageHandlerTest do
     assert {status, response} == {:ok, "1. User 1\n\nOut\n - User 2\n"}
   end
 
+  @tag roll_call_open: true
+  test "/whos_in prints a message when there have not been any responses" do
+    {status, response} = MessageHandler.handle_message(message(%{text: "/whos_in"}))
+    assert {status, response} == {:ok, "No responses yet. 😢"}
+  end
+
   @tag :roll_call_open
   test "/whos_in lists 'in' people in correct order", %{ roll_call: roll_call } do
     Repo.insert!(%RollCallResponse{ roll_call_id: roll_call.id, status: "in", user_id: 2, name: "User 2", updated_at: Ecto.DateTime.from_erl({{2015, 2, 2}, {2, 2, 2}})})
