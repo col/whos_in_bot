@@ -3,6 +3,7 @@ defmodule WhosInBot.Router do
   use Honeybadger.Plug
   import Atom.Chars
   alias WhosInBot.MessageHandler
+  require Logger
 
   plug Beaker.Integrations.Phoenix
   plug Plug.Parsers, parsers: [:urlencoded, :json],
@@ -21,6 +22,7 @@ defmodule WhosInBot.Router do
 
   post "/telegram/message" do
     message = Map.get(to_atom(conn.params), :message, %{})
+    Logger.debug("Received Message: #{inspect message}")
     case MessageHandler.handle_message(message) do
       {:ok, response} ->
         send_chat_response(message, response)
