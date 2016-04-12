@@ -5,6 +5,9 @@ defmodule WhosInBot.Message do
     Enum.member?(~w(end_roll_call in out maybe whos_in set_title set_in_for set_out_for set_maybe_for shh louder), command)
   end
 
+  def add_command(message = %{ text: "/" }) do
+    Map.put(message, :command, nil)
+  end
   def add_command(message = %{ text: "/"<>command }) do
     command = String.split(command) |> List.first
     if String.contains?(command, "@") do
