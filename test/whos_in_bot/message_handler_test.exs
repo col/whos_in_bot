@@ -2,7 +2,7 @@ defmodule WhosInBot.MessageHandlerTest do
   use ExUnit.Case
   alias WhosInBot.MessageHandler
   alias WhosInBot.Models.{RollCall, Response}
-  alias Telegram.{Message, Chat, User}
+  alias Telegram.{Message, Chat, User, Entity}
 
   @chat %Chat{ id: 123 }
   @from %User{ first_name: "Fred", id: 456 }
@@ -29,58 +29,67 @@ defmodule WhosInBot.MessageHandlerTest do
 
   test "does not respond to normal chat messages" do
     message = message(%{text: "Hey, what's up guys?"})
-    {status, response, roll_call} = MessageHandler.handle_message(message, nil)
-    assert {status, response, roll_call} == {:error, "Not a bot command", nil}
+    assert {:error, "Not a bot command", nil} = MessageHandler.handle_message(message, nil)
   end
 
   test "doesn't crash when there is no :text attribute in the message" do
     message = message(%{})
-    {status, response, roll_call} = MessageHandler.handle_message(message, nil)
-    assert {status, response, roll_call} == {:error, "Not a bot command", nil}
+    assert {:error, "Not a bot command", nil} = MessageHandler.handle_message(message, nil)
   end
 
   test "doesn't crash when just a '/' in the message" do
     message = message(%{text: "/"})
-    {status, response, roll_call} = MessageHandler.handle_message(message, nil)
-    assert {status, response, roll_call} == {:error, "Not a bot command", nil}
+    assert {:error, "Not a bot command", nil} = MessageHandler.handle_message(message, nil)
   end
 
   @tag :roll_call_open
   test "doesn't respond to unknown commands", %{roll_call: state} do
-    message = Message.set_text("/some_unknown_command")
-    {:error, "Unknown command", new_state} = MessageHandler.handle_message(message, state)
+    message = message(%{text: "/some_unknown_command"})
+    {:error, response, new_state} = MessageHandler.handle_message(message, state)
+    assert response == "Not a bot command"
     assert new_state == state
   end
 
-  # test "/start_roll_call responds with 'Roll Call Started'" do
-  #   {status, response} = MessageHandler.handle_message(message(%{text: "/start_roll_call"}))
-  #   assert {status, response} == {:ok, "Roll call started"}
-  # end
-  #
-  # test "handles messages when they contain the name of the bot" do
-  #   {status, response} = MessageHandler.handle_message(message(%{text: "/start_roll_call@BotName"}))
-  #   assert {status, response} == {:ok, "Roll call started"}
-  # end
-  #
-  # test "handles messages when they contain multiple @ in the bot name (Prod Bug)" do
-  #   {status, response} = MessageHandler.handle_message(message(%{text: "/start_roll_call@Bot@Name"}))
-  #   assert {status, response} == {:ok, "Roll call started"}
-  # end
-  #
-  # test "/start_roll_call creates a new RollCall" do
-  #   assert count(RollCall) == 0
-  #   MessageHandler.handle_message(message(%{text: "/start_roll_call"}))
-  #   assert Repo.get_by(RollCall, %{chat_id: @chat.id, status: "open"}) != nil
-  # end
-  #
-  # test "'/start_roll_call Monday Night Football' creates a new RollCall with a title" do
-  #   assert count(RollCall) == 0
-  #   MessageHandler.handle_message(message(%{text: "/start_roll_call Monday Night Football"}))
-  #   response = Repo.get_by(RollCall, %{chat_id: @chat.id, status: "open"})
-  #   assert response != nil
-  #   assert response.title == "Monday Night Football"
-  # end
-  #
+  test "/start_roll_call responds with 'Roll Call Started'" do
+    message = message(%{text: "/start_roll_call"})
+      |> Message.set_entity(%Entity{type: "bot_command", offset: 0, length: 16})
+      |> Message.process_entities
+    {:ok, response, _} = MessageHandler.handle_message(message, nil)
+    assert response == "Roll call started"
+  end
+
+  test "handles messages when they contain the name of the bot" do
+    message = message(%{text: "/start_roll_call@BotName"})
+      |> Message.set_entity(%Entity{type: "bot_command", offset: 0, length: 16})
+      |> Message.process_entities
+    {:ok, response, _} = MessageHandler.handle_message(message, nil)
+    assert response == "Roll call started"
+  end
+
+  test "handles messages when they contain multiple @ in the bot name (Prod Bug)" do
+    message = message(%{text: "/start_roll_call@Bot@Name"})
+      |> Message.set_entity(%Entity{type: "bot_command", offset: 0, length: 16})
+      |> Message.process_entities
+    {:ok, response, _} = MessageHandler.handle_message(message, nil)
+    assert response == "Roll call started"
+  end
+
+  test "/start_roll_call creates a new RollCall" do
+    message = message(%{text: "/start_roll_call"})
+      |> Message.set_entity(%Entity{type: "bot_command", offset: 0, length: 16})
+      |> Message.process_entities
+    {:ok, _, roll_call} = MessageHandler.handle_message(message, nil)
+    assert roll_call == RollCall.new(@chat.id, "")
+  end
+
+  test "'/start_roll_call Monday Night Football' creates a new RollCall with a title" do
+    message = message(%{text: "/start_roll_call Monday Night Football"})
+      |> Message.set_entity(%Entity{type: "bot_command", offset: 0, length: 16})
+      |> Message.process_entities
+    {:ok, _, roll_call} = MessageHandler.handle_message(message, nil)
+    assert roll_call == RollCall.new(@chat.id, "Monday Night Football")
+  end
+
   # test "'/start_roll_call Monday Night Football' doesn't include the title in the response" do
   #   {status, response} = MessageHandler.handle_message(message(%{text: "/start_roll_call Monday Night Football"}))
   #   assert {status, response} == {:ok, "Roll call started"}

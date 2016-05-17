@@ -1,16 +1,16 @@
 defmodule WhosInBot.MessageHandler do
-  alias Telegram.Message
+  # alias Telegram.Message
   alias WhosInBot.Models.RollCall
 
   def handle_message(%{command: nil}, roll_call) do
     {:error, "Not a bot command", roll_call}
   end
 
-  # def execute_command(message = %{ command: "start_roll_call" }) do
-  #   RollCall.new(message)
-  #   {:ok, "Roll call started", }
-  # end
-  #
+  def handle_message(message = %{command: "/start_roll_call"}, _) do
+    roll_call = RollCall.new(message.chat.id, Enum.join(message.params, " "))
+    {:ok, "Roll call started", roll_call}
+  end
+
   # def execute_command(%{ command: command, roll_call: nil }) do
   #   case is_known_command(command) do
   #     true -> {:ok, "No roll call in progress"}
