@@ -10,32 +10,16 @@ defmodule WhosInBot.Mixfile do
      deps: deps]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type "mix help compile.app" for more information
   def application do
-    [applications: [:honeybadger, :logger, :cowboy, :nadia, :ecto, :postgrex, :beaker],
-     mod: {WhosInBot, []}]
+    [applications: [:logger, :poison, :nadia, :telegram, :edeliver]]
   end
 
-  # Dependencies can be Hex packages:
-  #
-  #   {:mydep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
-  #
-  # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:beaker, git: "https://github.com/col/beaker.git"},
-      {:cowboy, "~> 1.0"},
-      {:plug, "~> 1.0"},
-      {:ecto, "~> 1.1"},
-      {:postgrex, "~> 0.11"},
-      {:nadia, "~> 0.3"},
-      {:honeybadger, "~> 0.1"}
+      {:nadia, git: "https://github.com/zhyu/nadia.git"},
+      {:poison, "~> 2.0"},
+      {:telegram, git: "https://github.com/col/telegram"},
+      {:edeliver, "~> 1.1.5"}
     ]
   end
 end
