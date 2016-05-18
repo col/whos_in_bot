@@ -7,8 +7,8 @@ defmodule WhosInBot.Models.RollCall do
     %RollCall{chat_id: chat_id, title: title, quiet: false, responses: []}
   end
 
-  def add_response(roll_call, user, type, reason \\ "") do
-    add_response(roll_call, Response.new(user.id, user.first_name, type, reason))
+  def add_response(roll_call, user_id, name, status, reason \\ "") do
+    add_response(roll_call, Response.new(user_id, name, status, reason))
   end
 
   def add_response(roll_call, response) do
@@ -30,12 +30,26 @@ defmodule WhosInBot.Models.RollCall do
     Enum.filter(roll_call.responses, fn(r) -> r.status == status end)
   end
 
-  def whos_in(%{responses: []}) do
+  def whos_in(roll_call, response \\ %{})
+
+  def whos_in(%{responses: []}, _) do
     "No responses yet. 😢"
   end
 
+  def whos_in(roll_call = %{quiet: true}, response) do
+    num_in = Enum.count(responses(roll_call, "in"))
+    num_out = Enum.count(responses(roll_call, "out"))
+    num_maybe = Enum.count(responses(roll_call, "maybe"))
+    response_desc = case response.status do
+      "in" -> "#{response.name} is in!"
+      "out" -> "#{response.name} is out!"
+      "maybe" -> "#{response.name} might come."
+    end
+    "#{response_desc}\nTotal: #{num_in} In, #{num_out} Out, #{num_maybe} Maybe\n"
+  end
+
   # TODO: REFACTOR!
-  def whos_in(roll_call) do
+  def whos_in(roll_call, _) do
     output = []
 
     if has_title?(roll_call) do

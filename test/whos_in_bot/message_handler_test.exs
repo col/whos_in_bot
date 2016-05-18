@@ -117,25 +117,22 @@ defmodule WhosInBot.MessageHandlerTest do
   test "/in records the users response" do
     message = message("/in", 3)
     {:ok, _, roll_call} = MessageHandler.handle_message(message, %RollCall{})
-    assert roll_call.responses == [Response.new(456, "Fred", "in")]
+    assert roll_call.responses == [Response.new(@from.id, @from.first_name, "in")]
   end
 
   test "/in updates an existing response" do
-    roll_call = RollCall.new(@chat.id, "") |> RollCall.add_response(@from, "out")
+    roll_call = RollCall.new(@chat.id, "") |> RollCall.add_response(@from.id, @from.first_name, "out")
     message = message("/in", 3)
     {:ok, _, roll_call} = MessageHandler.handle_message(message, roll_call)
     assert roll_call.responses == [Response.new(456, "Fred", "in")]
   end
 
-  # TODO: quiet mode
-  # test "/in responds with minimal info when in quiet mode" do
-  #   roll_call = RollCall.new(@chat.id, "")
-  #     |> RollCall.set_in(User.new(6, "User 1"))
-  #     |> RollCall.set_out(User.new(7, "User 2"))
-  #   message = message("/in", 3)
-  #   {:ok, response, roll_call} = MessageHandler.handle_message(message, roll_call)
-  #   assert response == "Fred is in!\nTotal: 2 In, 1 Out, 0 Maybe\n"
-  # end
+  @tag sample_responses: true
+  test "/in responds with minimal info when in quiet mode", %{roll_call: roll_call} do
+    roll_call = %{roll_call | quiet: true}
+    {:ok, response, _} = MessageHandler.handle_message(message("/in", 3), roll_call)
+    assert response == "Fred is in!\nTotal: 2 In, 1 Out, 1 Maybe\n"
+  end
 
   test "/in responds with reason" do
     message = message("/in plus 1", 3)
@@ -167,18 +164,17 @@ defmodule WhosInBot.MessageHandlerTest do
   end
 
   test "/out updates an existing response" do
-    roll_call = RollCall.new(@chat.id, "") |> RollCall.add_response(@from, "in")
+    roll_call = RollCall.new(@chat.id, "") |> RollCall.add_response(@from.id, @from.first_name, "in")
     {:ok, _, roll_call} = MessageHandler.handle_message(message("/out", 4), roll_call)
     assert roll_call.responses == [Response.new(@from.id, @from.first_name, "out")]
   end
 
-  # TODO: quiet mode
-  # @tag sample_responses: true
-  # test "/out responds with minimal info when in quiet mode", %{ roll_call: roll_call } do
-  #   RollCall.changeset(roll_call, %{ quiet: true }) |> Repo.update!
-  #   {status, response} = MessageHandler.handle_message(message(%{text: "/out"}))
-  #   assert {status, response} == {:ok, "Fred is out!\nTotal: 1 In, 2 Out, 1 Maybe\n"}
-  # end
+  @tag sample_responses: true
+  test "/out responds with minimal info when in quiet mode", %{roll_call: roll_call} do
+    roll_call = %{roll_call | quiet: true}
+    {:ok, response, _} = MessageHandler.handle_message(message("/out", 4), roll_call)
+    assert response == "Fred is out!\nTotal: 1 In, 2 Out, 1 Maybe\n"
+  end
 
   test "/out includes the reason in the response when it's provided" do
     {:ok, response, roll_call} = MessageHandler.handle_message(message("/out Injured", 4), %RollCall{})
@@ -203,18 +199,17 @@ defmodule WhosInBot.MessageHandlerTest do
   end
 
   test "/maybe updates an existing response" do
-    roll_call = RollCall.new(@chat.id, "") |> RollCall.add_response(@from, "in")
+    roll_call = RollCall.new(@chat.id, "") |> RollCall.add_response(@from.id, @from.first_name, "in")
     {:ok, _, roll_call} = MessageHandler.handle_message(message("/maybe", 6), roll_call)
     assert roll_call.responses == [Response.new(@from.id, @from.first_name, "maybe")]
   end
 
-  # TODO: quiet mode
-  # @tag roll_call_open: true, sample_responses: true
-  # test "/maybe responds with minimal info when out quiet mode", %{ roll_call: roll_call } do
-  #   RollCall.changeset(roll_call, %{ quiet: true }) |> Repo.update!
-  #   {status, response} = MessageHandler.handle_message(message(%{text: "/maybe"}))
-  #   assert {status, response} == {:ok, "Fred might come.\nTotal: 1 In, 1 Out, 2 Maybe\n"}
-  # end
+  @tag sample_responses: true
+  test "/maybe responds with minimal info when out quiet mode", %{roll_call: roll_call} do
+    roll_call = %{roll_call | quiet: true}
+    {:ok, response, _} = MessageHandler.handle_message(message("/maybe", 6), roll_call)
+    assert response == "Fred might come.\nTotal: 1 In, 1 Out, 2 Maybe\n"
+  end
 
   test "'/maybe Injured' includes the reason in the response when it's provided" do
     {:ok, response, _} = MessageHandler.handle_message(message("/maybe Injured", 6), %RollCall{})
@@ -272,7 +267,7 @@ defmodule WhosInBot.MessageHandlerTest do
     roll_call = %RollCall{ responses: [Response.new(nil, "Fred", "out", "Fred's Friend")] }
     {:ok, response, roll_call} = MessageHandler.handle_message(message("/in", 3), roll_call)
     assert response == "1. Fred\n"
-    assert roll_call.responses == [Response.new(@from.id, "Fred", "in")]
+    assert roll_call.responses == [Response.new(@from.id, @from.first_name, "in")]
   end
 
   test "'/set_out_for Fred' after Fred has already responded" do

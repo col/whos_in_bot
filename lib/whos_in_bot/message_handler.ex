@@ -1,5 +1,5 @@
 defmodule WhosInBot.MessageHandler do
-  alias WhosInBot.Models.RollCall
+  alias WhosInBot.Models.{RollCall, Response}
 
   def handle_message(message = %{command: "/start_roll_call"}, _) do
     roll_call = RollCall.new(message.chat.id, Enum.join(message.params, " "))
@@ -41,7 +41,7 @@ defmodule WhosInBot.MessageHandler do
     handle_response_for(message, roll_call, "maybe")
   end
 
-  def handle_message(message = %{command: "/whos_in"}, roll_call) do
+  def handle_message(%{command: "/whos_in"}, roll_call) do
     {:ok, RollCall.whos_in(roll_call), roll_call}
   end
 
@@ -50,22 +50,24 @@ defmodule WhosInBot.MessageHandler do
     {:ok, "Roll call title set", roll_call}
   end
 
-  def handle_message(message = %{command: "/shh"}, roll_call) do
+  def handle_message(%{command: "/shh"}, roll_call) do
     {:ok, "Ok fine, I'll be quiet. 🤐", %{roll_call | quiet: true}}
   end
 
-  def handle_message(message = %{command: "/louder"}, roll_call) do
-    {:ok, "Sure. 😃\n#{RollCall.whos_in(roll_call)}", %{roll_call | quiet: false}}
+  def handle_message(%{command: "/louder"}, roll_call) do
+    roll_call = %{roll_call | quiet: false}
+    {:ok, "Sure. 😃\n#{RollCall.whos_in(roll_call)}", roll_call}
   end
 
   def handle_message(%{command: _}, roll_call) do
     {:error, "Not a bot command", roll_call}
   end
 
-  defp handle_response(message, roll_call, response_type) do
-    reason = Enum.join(message.params, " ")
-    roll_call = RollCall.add_response(roll_call, message.from, response_type, reason)
-    {:ok, RollCall.whos_in(roll_call), roll_call}
+  defp handle_response(%{params: params, from: user}, roll_call, status) do
+    reason = Enum.join(params, " ")
+    response = Response.new(user.id, user.first_name, status, reason)
+    roll_call = RollCall.add_response(roll_call, response)
+    {:ok, RollCall.whos_in(roll_call, response), roll_call}
   end
 
   defp handle_response_for(message, roll_call, response_type) do
@@ -80,11 +82,12 @@ defmodule WhosInBot.MessageHandler do
   end
 
   defp handle_response_for(roll_call, response_type, name, reason) do
-    roll_call = RollCall.add_response(roll_call, %Telegram.User{first_name: name}, response_type, reason)
+    roll_call = RollCall.add_response(roll_call, nil, name, response_type, reason)
     {:ok, RollCall.whos_in(roll_call), roll_call}
   end
 
   defp is_known_command(command) do
     Enum.member?(~w(/end_roll_call /in /out /maybe /whos_in /set_title /set_in_for /set_out_for /set_maybe_for /shh /louder), command)
   end
+  
 end
