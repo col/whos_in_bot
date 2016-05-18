@@ -48,49 +48,99 @@ defmodule WhosInBot.Models.RollCall do
     "#{response_desc}\nTotal: #{num_in} In, #{num_out} Out, #{num_maybe} Maybe\n"
   end
 
+  defmodule Output do
+    defstruct [title: [], ins: [], outs: [], maybes: []]
+
+    def set_title(output, ""), do: output
+    def set_title(output, title) do
+      %{output|title: [title]}
+    end
+
+    def add_responses(output, [], type), do: Map.put(output, type, [])
+    def add_responses(output, responses, type) do
+      section = case type do
+        :ins -> []
+        :outs -> ["Out"]
+        :maybes -> ["Maybe"]
+      end
+      Map.put(output, type, section ++ responses_to_lines(responses))
+    end
+
+    defp responses_to_lines(responses) do
+      responses
+        |> Stream.with_index
+        |> Enum.map(fn({response, index}) -> Response.whos_in_line(response, index) end)
+    end
+
+    def print(output) do
+      lines = output.title ++ output.ins
+
+      unless Enum.empty?(output.maybes) do
+        unless Enum.empty?(lines), do: lines = lines ++ [""]
+        lines = lines ++ output.maybes
+      end
+
+      unless Enum.empty?(output.outs) do
+        unless Enum.empty?(lines), do: lines = lines ++ [""]
+        lines = lines ++ output.outs
+      end
+
+      Enum.join(lines, "\n") <> "\n"
+    end
+  end
+
   # TODO: REFACTOR!
   def whos_in(roll_call, _) do
-    output = []
-
-    if has_title?(roll_call) do
-      output = [roll_call.title]
-    end
-
-    output = responses(roll_call, "in")
-      |> Stream.with_index
-      |> Enum.reduce(output, fn({response, index}, acc) ->
-           [Response.whos_in_line(response, index)|acc]
-         end)
-
-     unless Enum.empty?(responses(roll_call, "maybe")) do
-       if Enum.count(output) > 0 do
-          output = [""|output]
-       end
-       output = ["Maybe"|output]
-     end
-
-     output = responses(roll_call, "maybe")
-      |> Stream.with_index
-      |> Enum.reduce(output, fn({response, index}, acc) ->
-           [Response.whos_in_line(response, index)|acc]
-         end)
-
-    unless Enum.empty?(responses(roll_call, "out")) do
-      if Enum.count(output) > 0 do
-         output = [""|output]
-      end
-      output = ["Out"|output]
-    end
-
-    output = responses(roll_call, "out")
-     |> Stream.with_index
-     |> Enum.reduce(output, fn({response, index}, acc) ->
-          [Response.whos_in_line(response, index)|acc]
-        end)
-
-    output = Enum.reverse(output)
-    output = output ++ [""]
-    Enum.join(output, "\n")
+    %Output{}
+      |> Output.set_title(roll_call.title)
+      |> Output.add_responses(responses(roll_call, "in"), :ins)
+      |> Output.add_responses(responses(roll_call, "maybe"), :maybes)
+      |> Output.add_responses(responses(roll_call, "out"), :outs)
+      |> Output.print
   end
+
+  # def whos_in(roll_call, _) do
+  #   output = []
+  #
+  #   if has_title?(roll_call) do
+  #     output = [roll_call.title]
+  #   end
+  #
+  #   output = responses(roll_call, "in")
+  #     |> Stream.with_index
+  #     |> Enum.reduce(output, fn({response, index}, acc) ->
+  #          [Response.whos_in_line(response, index)|acc]
+  #        end)
+  #
+  #    unless Enum.empty?(responses(roll_call, "maybe")) do
+  #      if Enum.count(output) > 0 do
+  #         output = [""|output]
+  #      end
+  #      output = ["Maybe"|output]
+  #    end
+  #
+  #    output = responses(roll_call, "maybe")
+  #     |> Stream.with_index
+  #     |> Enum.reduce(output, fn({response, index}, acc) ->
+  #          [Response.whos_in_line(response, index)|acc]
+  #        end)
+  #
+  #   unless Enum.empty?(responses(roll_call, "out")) do
+  #     if Enum.count(output) > 0 do
+  #        output = [""|output]
+  #     end
+  #     output = ["Out"|output]
+  #   end
+  #
+  #   output = responses(roll_call, "out")
+  #    |> Stream.with_index
+  #    |> Enum.reduce(output, fn({response, index}, acc) ->
+  #         [Response.whos_in_line(response, index)|acc]
+  #       end)
+  #
+  #   output = Enum.reverse(output)
+  #   output = output ++ [""]
+  #   Enum.join(output, "\n")
+  # end
 
 end
