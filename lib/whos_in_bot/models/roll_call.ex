@@ -12,8 +12,14 @@ defmodule WhosInBot.Models.RollCall do
   end
 
   def add_response(roll_call, response) do
-    responses = Enum.reject(roll_call.responses, fn(r) -> r.user_id == response.user_id end)
-    %{roll_call | responses: [response|responses]}
+    responses = roll_call.responses
+      |> Enum.reject(fn(r) -> r.user_id == response.user_id end)
+      |> Enum.reject(fn(r) -> (r.user_id == nil || response.user_id == nil) && r.name == response.name end)
+    %{roll_call | responses: responses++[response]}
+  end
+
+  def set_title(roll_call, title) do
+    %{roll_call | title: title}
   end
 
   def has_title?(roll_call) do
@@ -22,6 +28,10 @@ defmodule WhosInBot.Models.RollCall do
 
   def responses(roll_call, status) do
     Enum.filter(roll_call.responses, fn(r) -> r.status == status end)
+  end
+
+  def whos_in(%{responses: []}) do
+    "No responses yet. 😢"
   end
 
   # TODO: REFACTOR!
@@ -38,7 +48,23 @@ defmodule WhosInBot.Models.RollCall do
            [Response.whos_in_line(response, index)|acc]
          end)
 
+     unless Enum.empty?(responses(roll_call, "maybe")) do
+       if Enum.count(output) > 0 do
+          output = [""|output]
+       end
+       output = ["Maybe"|output]
+     end
+
+     output = responses(roll_call, "maybe")
+      |> Stream.with_index
+      |> Enum.reduce(output, fn({response, index}, acc) ->
+           [Response.whos_in_line(response, index)|acc]
+         end)
+
     unless Enum.empty?(responses(roll_call, "out")) do
+      if Enum.count(output) > 0 do
+         output = [""|output]
+      end
       output = ["Out"|output]
     end
 
@@ -48,16 +74,6 @@ defmodule WhosInBot.Models.RollCall do
           [Response.whos_in_line(response, index)|acc]
         end)
 
-    unless Enum.empty?(responses(roll_call, "maybe")) do
-      output = ["Maybe"|output]
-    end
-
-    output = responses(roll_call, "maybe")
-     |> Stream.with_index
-     |> Enum.reduce(output, fn({response, index}, acc) ->
-          [Response.whos_in_line(response, index)|acc]
-        end)
-        
     output = Enum.reverse(output)
     output = output ++ [""]
     Enum.join(output, "\n")
