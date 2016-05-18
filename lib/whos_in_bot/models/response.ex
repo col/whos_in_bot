@@ -15,11 +15,11 @@ defmodule WhosInBot.Models.Response do
     "#{index+1}. #{response.name} #{parenthesize_reason(reason)}"
   end
 
-  def whos_in_line(response = %{status: "out", reason: ""}, _) do
+  def whos_in_line(response = %{status: _, reason: ""}, _) do
     " - #{response.name}"
   end
 
-  def whos_in_line(response = %{status: "out", reason: reason}, _) do
+  def whos_in_line(response = %{status: _, reason: reason}, _) do
     " - #{response.name} #{parenthesize_reason(reason)}"
   end
 

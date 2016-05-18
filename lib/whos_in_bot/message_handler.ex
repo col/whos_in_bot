@@ -19,14 +19,20 @@ defmodule WhosInBot.MessageHandler do
   end
 
   def handle_message(message = %{command: "/in"}, roll_call) do
-    reason = Enum.join(message.params, " ")
-    roll_call = RollCall.set_in(roll_call, message.from, reason)
-    {:ok, RollCall.whos_in(roll_call), roll_call}
+    handle_response(message, roll_call, "in")
   end
 
   def handle_message(message = %{command: "/out"}, roll_call) do
+    handle_response(message, roll_call, "out")
+  end
+
+  def handle_message(message = %{command: "/maybe"}, roll_call) do
+    handle_response(message, roll_call, "maybe")
+  end
+
+  def handle_response(message, roll_call, response_type) do
     reason = Enum.join(message.params, " ")
-    roll_call = RollCall.set_out(roll_call, message.from, reason)
+    roll_call = RollCall.add_response(roll_call, message.from, response_type, reason)
     {:ok, RollCall.whos_in(roll_call), roll_call}
   end
 

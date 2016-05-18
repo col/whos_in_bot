@@ -121,7 +121,7 @@ defmodule WhosInBot.MessageHandlerTest do
   end
 
   test "/in updates an existing response" do
-    roll_call = RollCall.new(@chat.id, "") |> RollCall.set_out(@from)
+    roll_call = RollCall.new(@chat.id, "") |> RollCall.add_response(@from, "out")
     message = message("/in", 3)
     {:ok, _, roll_call} = MessageHandler.handle_message(message, roll_call)
     assert roll_call.responses == [Response.new(456, "Fred", "in")]
@@ -167,7 +167,7 @@ defmodule WhosInBot.MessageHandlerTest do
   end
 
   test "/out updates an existing response" do
-    roll_call = RollCall.new(@chat.id, "") |> RollCall.set_in(@from)
+    roll_call = RollCall.new(@chat.id, "") |> RollCall.add_response(@from, "in")
     {:ok, _, roll_call} = MessageHandler.handle_message(message("/out", 4), roll_call)
     assert roll_call.responses == [Response.new(@from.id, @from.first_name, "out")]
   end
@@ -192,37 +192,40 @@ defmodule WhosInBot.MessageHandlerTest do
   end
 
 
-  # @tag :roll_call_open
-  # test "/maybe responds correctly" do
-  #   {status, response} = MessageHandler.handle_message(message(%{text: "/maybe"}))
-  #   assert {status, response} == {:ok, "Maybe\n - Fred\n"}
-  # end
-  #
+  test "/maybe responds correctly" do
+    {:ok, response, _} = MessageHandler.handle_message(message("/maybe", 6), %RollCall{})
+    assert response == "Maybe\n - Fred\n"
+  end
+
+  test "/maybe records the users response" do
+    {:ok, _, roll_call} = MessageHandler.handle_message(message("/maybe", 6), %RollCall{})
+    assert roll_call.responses == [Response.new(@from.id, @from.first_name, "maybe")]
+  end
+
+  # TODO: quiet mode
   # @tag roll_call_open: true, sample_responses: true
   # test "/maybe responds with minimal info when out quiet mode", %{ roll_call: roll_call } do
   #   RollCall.changeset(roll_call, %{ quiet: true }) |> Repo.update!
   #   {status, response} = MessageHandler.handle_message(message(%{text: "/maybe"}))
   #   assert {status, response} == {:ok, "Fred might come.\nTotal: 1 In, 1 Out, 2 Maybe\n"}
   # end
-  #
-  # @tag :roll_call_open
-  # test "/maybe includes the reason in the response when it's provided" do
-  #   {status, response} = MessageHandler.handle_message(message(%{text: "/maybe Injured"}))
-  #   assert {status, response} == {:ok, "Maybe\n - Fred (Injured)\n"}
-  # end
-  #
-  # test "/maybe responds with an error message when no active roll call exists" do
-  #   {status, response} = MessageHandler.handle_message(message(%{text: "/maybe"}))
-  #   assert {status, response} == {:ok, "No roll call in progress"}
-  # end
-  #
-  # @tag :roll_call_open
-  # test "/maybe records the users response", %{ roll_call: roll_call } do
-  #   MessageHandler.handle_message(message(%{text: "/maybe"}))
-  #   response = Repo.get_by!(RollCallResponse, %{status: "maybe", user_id: @from.id, name: @from.first_name})
-  #   assert response.roll_call_id == roll_call.id
-  # end
-  #
+
+  test "'/maybe Injured' includes the reason in the response when it's provided" do
+    {:ok, response, _} = MessageHandler.handle_message(message("/maybe Injured", 6), %RollCall{})
+    assert response == "Maybe\n - Fred (Injured)\n"
+  end
+
+  test "'/maybe Injured' records the users response and the reason" do
+    {:ok, _, roll_call} = MessageHandler.handle_message(message("/maybe Injured", 6), %RollCall{})
+    assert roll_call.responses == [Response.new(@from.id, @from.first_name, "maybe", "Injured")]
+  end
+
+  test "/maybe responds with an error message when no active roll call exists" do
+    {:ok, response, _} = MessageHandler.handle_message(message("/maybe", 6), nil)
+    assert response == "No roll call in progress"
+  end
+
+
   # @tag :roll_call_open
   # test "'/maybe Injured' records the users response and the reason", %{ roll_call: roll_call } do
   #   MessageHandler.handle_message(message(%{text: "/maybe Injured"}))
