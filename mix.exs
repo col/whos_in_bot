@@ -22,7 +22,8 @@ defmodule WhosInBot.Mixfile do
       {:nadia, git: "https://github.com/zhyu/nadia.git"},
       {:poison, "~> 2.0"},
       {:telegram, git: "https://github.com/col/telegram"},
-      {:edeliver, "~> 1.1.5"}
+      {:edeliver, "~> 1.1.5"},
+      {:exrm, "~> 1.0.3"}
     ]
   end
 end

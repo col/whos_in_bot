@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+APP="whos_in_bot"
+
+LINK_SYS_CONFIG=/etc/whos_in_bot.config
+
+BUILD_HOST="bothub.colharris.com"
+BUILD_USER="root"
+BUILD_AT="/git/whos_in_bot/builds"
+RELEASE_DIR="/git/whos_in_bot/builds/rel/whos_in_bot"
+
+STAGING_HOSTS="bothub.colharris.com"
+STAGING_USER="git"
+TEST_AT="/test/whos_in_bot"
+
+PRODUCTION_HOSTS="bothub.colharris.com"
+PRODUCTION_USER="root"
+DELIVER_TO="/opt/whos_in_bot"
+
+RELEASE_STORE=s3://$AWS_ACCESS_KEY_ID@$AWS_SECRET_ACCESS_KEY:whos-in-bot-releases

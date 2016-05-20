@@ -4,6 +4,17 @@
 
 WhosInBot is a Telegram bot that helps you keep track of who is attending an event within a group chat.
 
+## Deployment
+
+    mix edeliver build release
+    mix edeliver deploy release to production --version=0.0.x
+    mix edeliver start production
+
+## Upgrade
+
+  mix edeliver build upgrade --from=0.0.x --to=0.0.z
+  mix edeliver deploy upgrade to production --version=0.0.z
+
 ## Commands
 
 ### Basic Commands
