@@ -34,6 +34,6 @@ defmodule WhosInBot.Worker do
   end
 
   def handle_call(:version, _from, state) do
-    {:reply, WhoInBot.version, state}
+    {:reply, WhosInBot.version, state}
   end
 end
