@@ -11,7 +11,10 @@ defmodule WhosInBot.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :poison, :nadia, :telegram, :edeliver]]
+    [
+      applications: [:logger, :poison, :nadia, :telegram, :edeliver],
+      mod: {WhosInBot, []}
+    ]
   end
 
   defp deps do

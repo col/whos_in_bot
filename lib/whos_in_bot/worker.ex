@@ -22,10 +22,15 @@ defmodule WhosInBot.Worker do
     IO.puts "Connecting to bot_hub (#{node_name}): #{result}"
   end
 
-  def handle_cast({:handle_message, json}, state) do
-    message = Telegram.Request.parse(json).message
-    Nadia.send_message(message.chat.id, message.text)
-    {:noreply, state}
+  def handle_cast({:handle_message, json}, roll_call) do
+    message = Telegram.Update.parse(json).message
+    case WhosInBot.MessageHandler.handle_message(message, roll_call) do
+      {:ok, response, roll_call} ->
+        Nadia.send_message(message.chat.id, response)
+      {:error, response, _} ->
+        IO.puts "Error: #{response}"
+    end
+    {:noreply, roll_call}
   end
 
   def handle_call(:version, _from, state) do
