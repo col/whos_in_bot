@@ -12,8 +12,16 @@ WhosInBot is a Telegram bot that helps you keep track of who is attending an eve
 
 ## Upgrade
 
-  mix edeliver build upgrade --from=0.0.x --to=0.0.z
-  mix edeliver deploy upgrade to production --version=0.0.z
+    mix edeliver build upgrade --from=0.0.x --to=0.0.z
+    mix edeliver deploy upgrade to production --version=0.0.z
+
+
+## Testing (IEX)
+
+    message = %Telegram.Message{text: "/start_roll_call", chat: %Telegram.Chat{id: 1}}
+    message = Telegram.Message.set_entity(message, Telegram.Entity.new("bot_command", 0, 16))  
+    message = Telegram.Message.process_entities(message)
+    WhosInBot.ChatGroup.handle_message(message)
 
 ## Commands
 
