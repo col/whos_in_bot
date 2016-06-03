@@ -6,6 +6,8 @@ WhosInBot is a Telegram bot that helps you keep track of who is attending an eve
 
 ## Deployment
 
+    Note: Make sure your AWS keys are set!
+    
     mix edeliver build release --branch=bot_hub
     mix edeliver deploy release to production --version=0.0.x
     mix edeliver start|restart production

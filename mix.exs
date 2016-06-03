@@ -3,7 +3,7 @@ defmodule WhosInBot.Mixfile do
 
   def project do
     [app: :whos_in_bot,
-     version: "0.0.3",
+     version: "0.0.4",
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -22,8 +22,11 @@ defmodule WhosInBot.Mixfile do
       {:nadia, git: "https://github.com/zhyu/nadia.git"},
       {:poison, "~> 2.0"},
       {:telegram, git: "https://github.com/col/telegram"},
-      {:edeliver, "~> 1.1.5"},
-      {:exrm, "~> 1.0.3"}
+      # Deployment
+      {:edeliver, "~> 1.2.8"},
+      {:exrm, "~> 1.0.5"},
+      {:conform, "~> 2.0.0"},
+      {:conform_exrm, "~> 1.0.0"}
     ]
   end
 end
