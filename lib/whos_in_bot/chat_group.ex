@@ -1,36 +1,56 @@
 defmodule WhosInBot.ChatGroup do
+  require Logger
   use GenServer
-  alias WhosInBot.RollCall
+  alias WhosInBot.{RollCall, MessageHandler}
+
+  # Public API
 
   def start_link(chat_id) do
     GenServer.start_link(__MODULE__, chat_id)
   end
 
   def handle_message(message) do
-    GenServer.cast(chat_group_process(message.chat.id), {:handle_message, message})
+    GenServer.call(chat_group_process(message.chat.id), {:handle_message, message})
   end
+
+  # GenServer
 
   def init(chat_id) do
-    IO.puts "Starting new Chat Group: #{chat_id}"
+    Logger.debug "Starting new Chat Group: #{chat_id}"
     register(chat_id)
-    {:ok, nil}
+    state = load_state(chat_id)
+    {:ok, state}
   end
 
-  def handle_cast({:handle_message, message}, roll_call) do
-    case WhosInBot.MessageHandler.handle_message(message, roll_call) do
+  def handle_call({:handle_message, message}, _, roll_call) do
+    Logger.debug "Handle Message: #{message.text}"
+    case MessageHandler.handle_message(message, roll_call) do
       {:ok, response, roll_call} ->
-        IO.puts "Response: #{response}"
-        Nadia.send_message(message.chat.id, response)
-      {:error, response} ->
-        IO.puts "Error handling message: #{response}"
+        Logger.debug "Response: #{response}"
+        save_state(message.chat.id, roll_call)
+        {:reply, response, roll_call}
+      {:error, error, roll_call} ->
+        Logger.debug "Error handling message: #{error}"
+        {:reply, nil, roll_call}
     end
-    {:noreply, roll_call}
   end
 
+  # Private Methods
+
+  defp load_state(chat_id) do
+    case :ets.lookup(:chat_states, process_name(chat_id)) do
+      [{_, state}] -> state
+      _ -> nil
+    end
+  end
+
+  defp save_state(chat_id, state) do
+    :ets.insert(:chat_states, {process_name(chat_id), state})
+  end
 
   defp chat_group_process(chat_id) do
     case where_is(chat_id) do
-      :undefined ->
+      nil ->
         {:ok, pid} = WhosInBot.ChatGroupSupervisor.start_chat_group(chat_id)
         pid
       pid -> pid
