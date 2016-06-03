@@ -25,6 +25,7 @@ defmodule WhosInBot.Worker do
   end
 
   def handle_cast({:handle_message, json}, telegram_client) do
+    Logger.debug "Received JSON: #{json}"
     message = Telegram.Update.parse(json).message
     response = ChatGroup.handle_message(message)
     telegram_client.send_message(message.chat.id, response)
