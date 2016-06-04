@@ -63,13 +63,13 @@ defmodule WhosInBot.MessageHandlerTest do
   end
 
   test "handles messages when they contain the name of the bot" do
-    message = message("/start_roll_call@BotName", 16)
+    message = message("/start_roll_call@BotName", 24)
     {:ok, response, _} = MessageHandler.handle_message(message, nil)
     assert response == "Roll call started"
   end
 
   test "handles messages when they contain multiple @ in the bot name (Prod Bug)" do
-    message = message("/start_roll_call@Bot@Name", 16)
+    message = message("/start_roll_call@Bot@Name", 25)
     {:ok, response, _} = MessageHandler.handle_message(message, nil)
     assert response == "Roll call started"
   end
