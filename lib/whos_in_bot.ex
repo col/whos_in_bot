@@ -14,8 +14,8 @@ defmodule WhosInBot do
   end
 
   def version do
-    {:ok, version} = :application.get_key(:whos_in_bot, :vsn)
-    version
+    {:ok, app_version} = :application.get_key(:whos_in_bot, :vsn)
+    app_version
   end
-  
+
 end

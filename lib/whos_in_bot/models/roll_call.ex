@@ -1,5 +1,5 @@
 defmodule WhosInBot.Models.RollCall do
-  alias WhosInBot.Models.{RollCall, Response}
+  alias WhosInBot.Models.{RollCall, Response, Output}
 
   defstruct [chat_id: nil, title: "", quiet: false, responses: []]
 
@@ -12,10 +12,10 @@ defmodule WhosInBot.Models.RollCall do
   end
 
   def add_response(roll_call, response) do
-    responses = roll_call.responses
+    new_responses = roll_call.responses
       |> Enum.reject(fn(r) -> r.user_id == response.user_id end)
       |> Enum.reject(fn(r) -> (r.user_id == nil || response.user_id == nil) && r.name == response.name end)
-    %{roll_call | responses: responses++[response]}
+    %{roll_call | responses: new_responses++[response]}
   end
 
   def set_title(roll_call, title) do
@@ -46,29 +46,6 @@ defmodule WhosInBot.Models.RollCall do
       "maybe" -> "#{response.name} might come."
     end
     "#{response_desc}\nTotal: #{num_in} In, #{num_out} Out, #{num_maybe} Maybe\n"
-  end
-
-  defmodule Output do
-    def set_title(lines, ""), do: lines
-    def set_title(lines, title) do
-      [title|lines]
-    end
-
-    def add_responses(lines, response, section \\ nil)
-    def add_responses(lines, [], _), do: lines
-    def add_responses(lines, responses, nil), do: lines ++ lines_for(responses)
-    def add_responses([], responses, section), do: [section] ++ lines_for(responses)
-    def add_responses(lines, responses, section), do: lines ++ ["", section] ++ lines_for(responses)
-
-    defp lines_for(responses) do
-      responses
-        |> Stream.with_index
-        |> Enum.map(fn({response, index}) -> Response.whos_in_line(response, index) end)
-    end
-
-    def print(lines) do
-      Enum.join(lines, "\n") <> "\n"
-    end
   end
 
   def whos_in(roll_call, _) do
