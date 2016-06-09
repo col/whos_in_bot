@@ -25,7 +25,7 @@ defmodule WhosInBot.Models.Response do
 
   defp parenthesize_reason(reason) do
     case reason do
-      "("<>_ ->
+      "(" <> _ ->
           reason
       _ ->
         "(#{reason})"

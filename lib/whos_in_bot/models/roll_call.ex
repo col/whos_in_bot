@@ -15,7 +15,7 @@ defmodule WhosInBot.Models.RollCall do
     new_responses = roll_call.responses
       |> Enum.reject(fn(r) -> r.user_id == response.user_id end)
       |> Enum.reject(fn(r) -> (r.user_id == nil || response.user_id == nil) && r.name == response.name end)
-    %{roll_call | responses: new_responses++[response]}
+    %{roll_call | responses: new_responses ++ [response]}
   end
 
   def set_title(roll_call, title) do
