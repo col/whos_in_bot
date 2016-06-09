@@ -1,7 +1,7 @@
 defmodule WhosInBot.ChatGroup do
   require Logger
   use GenServer
-  alias WhosInBot.{RollCall, MessageHandler}
+  alias WhosInBot.MessageHandler
 
   # Public API
 
