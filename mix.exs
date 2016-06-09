@@ -26,7 +26,8 @@ defmodule WhosInBot.Mixfile do
       {:edeliver, "~> 1.2.8"},
       {:exrm, "~> 1.0.5"},
       {:conform, "~> 2.0.0"},
-      {:conform_exrm, "~> 1.0.0"}
+      {:conform_exrm, "~> 1.0.0"},
+      {:credo, "~> 0.4.1"}
     ]
   end
 end
