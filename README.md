@@ -24,6 +24,10 @@ WhosInBot is a Telegram bot that helps you keep track of who is attending an eve
 - /shh - Tells WhosInBot not to list all attendees after every response
 - /louder - Tells WhosInBot to list all attendees after every response
 
+### Alias
+- /can
+- /cannot
+
 ## Usage
 
 Simply add [@WhosInBot](https://telegram.me/whosinbot) to your group chat and send a '/start_roll_call' to start
