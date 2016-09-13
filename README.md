@@ -38,7 +38,7 @@ Each time someone responds [@WhosInBot](https://telegram.me/whosinbot) will prin
 Dinner on Friday
 1. Sam
 2. John
-2. Chris
+3. Chris
 
 Out
 - James (on holiday)
