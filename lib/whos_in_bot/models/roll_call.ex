@@ -1,7 +1,7 @@
 defmodule WhosInBot.Models.RollCall do
   use Ecto.Schema
   import Ecto.Changeset
-  import Ecto.Query, only: [from: 1, from: 2]
+  import Ecto.Query, only: [from: 1, from: 2, order_by: 2]
   alias WhosInBot.Repo
   alias WhosInBot.Models.{RollCall, RollCallResponse}
 
@@ -137,7 +137,7 @@ defmodule WhosInBot.Models.RollCall do
   end
 
   def responses(roll_call, status) do
-    RollCallResponse |> RollCallResponse.for_roll_call(roll_call) |> RollCallResponse.with_status(status) |> Repo.all
+    RollCallResponse |> RollCallResponse.for_roll_call(roll_call) |> RollCallResponse.with_status(status) |> order_by(:inserted_at) |> Repo.all
   end
 
   defp in_response_list(roll_call) do
