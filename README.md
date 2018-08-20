@@ -18,7 +18,7 @@ WhosInBot is a Telegram bot that helps you keep track of who is attending an eve
 ### Other Commands
 
 - /set_title {title} - Add a title to the current roll call
-- /set_in_for {name} - Allows you to respond for another user
+- /set_in_for {name} - Allows you to respond for another user (with optional comment)
 - /set_out_for {name} - Allows you to respond for another user
 - /set_maybe_for {name} - Allows you to respond for another user
 - /shh - Tells WhosInBot not to list all attendees after every response
