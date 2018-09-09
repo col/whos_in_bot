@@ -24,6 +24,8 @@ use Mix.Config
 config :nadia,
   token: (System.get_env("BOT_TOKEN") || "")
 
+config :whos_in_bot, ecto_repos: [WhosInBot.Repo]
+
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
 # by uncommenting the line below and defining dev.exs, test.exs and such.

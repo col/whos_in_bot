@@ -9,13 +9,13 @@ defmodule WhosInBot.Models.RollCallResponse do
     field :name, :string
     field :user_id, :integer
     field :reason, :string
-    belongs_to :roll_call, Tbot.RollCall
+    belongs_to :roll_call, RollCall
 
     timestamps
   end
 
-  @required_fields ~w(status name)
-  @optional_fields ~w(reason user_id)
+  @all_fields [:status, :name, :reason, :user_id]
+  @required_fields [:status, :name]
 
   @doc """
   Creates a changeset based on the `model` and `params`.
@@ -25,7 +25,8 @@ defmodule WhosInBot.Models.RollCallResponse do
   """
   def changeset(model, params \\ :empty) do
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @all_fields)
+    |> validate_required(@required_fields)\
   end
 
   def for_roll_call(query, roll_call) do

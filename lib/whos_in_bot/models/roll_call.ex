@@ -16,12 +16,13 @@ defmodule WhosInBot.Models.RollCall do
     timestamps
   end
 
-  @required_fields ~w(chat_id status)
-  @optional_fields ~w(date title quiet)
+  @all_fields [:chat_id, :status, :date, :title, :quiet]
+  @required_fields [:chat_id, :status]
 
   def changeset(model, params \\ :empty) do
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @all_fields)
+    |> validate_required(@required_fields)
   end
 
   def has_title?(roll_call) do
@@ -61,7 +62,7 @@ defmodule WhosInBot.Models.RollCall do
 
   def update_attendance(message, status) do
     case response_for_name(message) || response_for_user_id(message) do
-      nil  -> Ecto.Model.build(message.roll_call, :responses)
+      nil  -> Ecto.build_assoc(message.roll_call, :responses)
       response -> response
     end
     |> RollCallResponse.changeset(%{

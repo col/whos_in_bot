@@ -10,9 +10,10 @@ config :whos_in_bot, WhosInBot.Repo,
   password: "postgres",
   database: "whos_in_bot_dev",
   hostname: "localhost",
+  port: 5439, # Customer port for docker compose setup
   pool_size: 10
 
-config :honeybadger, 
+config :honeybadger,
   :environment_name, :dev
 
 # Load the dev secrets if it exists. This can be used to load the Bot Token.

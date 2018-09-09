@@ -10,5 +10,4 @@ defmodule AtomMapTest do
     result = Atom.Chars.to_atom(%{"key" => %{"nested_key" => "value"}})
     assert result.key.nested_key == "value"
   end
-
 end

@@ -17,7 +17,7 @@ defmodule WhosInBot.MessageHandlerTest do
   end
 
   setup config do
-    Ecto.Adapters.SQL.restart_test_transaction(WhosInBot.Repo, [])
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(WhosInBot.Repo)
     roll_call = responses = nil
 
     if config[:roll_call_open] do
@@ -177,10 +177,10 @@ defmodule WhosInBot.MessageHandlerTest do
 
   @tag :roll_call_open
   test "/in updates an existing response", %{ roll_call: roll_call } do
-    Repo.insert!(%RollCallResponse{ roll_call_id: roll_call.id, status: "out", user_id: @from.id, name: @from.first_name})
+    Repo.insert!(%RollCallResponse{roll_call_id: roll_call.id, status: "out", user_id: @from.id, name: @from.first_name})
     MessageHandler.handle_message(message(%{text: "/in"}))
     assert Repo.one!(RollCallResponse).status == "in"
-    assert Repo.one!(RollCallResponse).reason == ""
+    assert Repo.one!(RollCallResponse).reason == nil
   end
 
   @tag :roll_call_open

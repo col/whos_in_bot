@@ -7,7 +7,12 @@ defmodule WhosInBot.RouterTest do
 
   @json_request "{ \"message\": { \"chat\": { \"id\": 1 }, \"text\": \"unknown_command\" } }"
 
+  setup _ do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(WhosInBot.Repo)
+  end
+
   test "POST /telegram/message with valid params returns an empty response" do
+
     conn = conn(:post, "/telegram/message", @json_request)
       |> put_req_header("content-type", "application/json")
       |> Router.call(@opts)
