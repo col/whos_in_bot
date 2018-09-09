@@ -18,17 +18,19 @@ defmodule WhosInBot.MessageHandlerTest do
 
   setup config do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(WhosInBot.Repo)
-    roll_call = responses = nil
 
-    if config[:roll_call_open] do
-      roll_call = %RollCall{ chat_id: @chat.id, status: "open" } |> Repo.insert!
+    roll_call = case config[:roll_call_open] do
+      true -> %RollCall{ chat_id: @chat.id, status: "open" } |> Repo.insert!
+      _ -> nil
     end
 
-    if config[:sample_responses] do
-      response1 = %RollCallResponse{ roll_call_id: roll_call.id, status: "in", user_id: 1, name: "User 1"} |> Repo.insert!
-      response2 = %RollCallResponse{ roll_call_id: roll_call.id, status: "out", user_id: 2, name: "User 2"} |> Repo.insert!
-      response3 = %RollCallResponse{ roll_call_id: roll_call.id, status: "maybe", user_id: 3, name: "User 3"} |> Repo.insert!
-      responses = [response1, response2, response3]
+    case config[:sample_responses] do
+      true -> [
+        %RollCallResponse{ roll_call_id: roll_call.id, status: "in", user_id: 1, name: "User 1"} |> Repo.insert!,
+        %RollCallResponse{ roll_call_id: roll_call.id, status: "out", user_id: 2, name: "User 2"} |> Repo.insert!,
+        %RollCallResponse{ roll_call_id: roll_call.id, status: "maybe", user_id: 3, name: "User 3"} |> Repo.insert!
+      ]
+      _ -> nil
     end
 
     {:ok, roll_call: roll_call}

@@ -1,7 +1,7 @@
 defmodule WhosInBot.Models.RollCall do
   use Ecto.Schema
   import Ecto.Changeset
-  import Ecto.Query, only: [from: 1, from: 2, order_by: 2]
+  import Ecto.Query, only: [from: 2, order_by: 2]
   alias WhosInBot.Repo
   alias WhosInBot.Models.{RollCall, RollCallResponse}
 
@@ -13,7 +13,7 @@ defmodule WhosInBot.Models.RollCall do
     field :quiet, :boolean, default: false
     has_many :responses, RollCallResponse
 
-    timestamps
+    timestamps()
   end
 
   @all_fields [:chat_id, :status, :date, :title, :quiet]
@@ -103,26 +103,27 @@ defmodule WhosInBot.Models.RollCall do
   end
 
   def whos_in_list(roll_call) do
-    # TODO: this could definitely do with a functional refactoring!
-    output = []
-
-    if has_title?(roll_call) do
-      output = [roll_call.title]
+    output = case has_title?(roll_call) do
+      true -> [roll_call.title]
+      _ -> []
     end
 
     in_list = in_response_list(roll_call)
-    if String.length(in_list) > 0 do
-      output = output ++ [in_list]
+    output = case String.length(in_list) > 0 do
+      true -> output ++ [in_list]
+      _ -> output
     end
 
     maybe_list = maybe_response_list(roll_call)
-    if String.length(maybe_list) > 0 do
-      output = output ++ [maybe_list]
+    output = case String.length(maybe_list) > 0 do
+      true -> output ++ [maybe_list]
+      _ -> output
     end
 
     out_list = out_response_list(roll_call)
-    if String.length(out_list) > 0 do
-      output = output ++ [out_list]
+    output = case String.length(out_list) > 0 do
+      true -> output ++ [out_list]
+      _ -> output
     end
 
     output = case Enum.count(responses(roll_call)) do
@@ -142,33 +143,31 @@ defmodule WhosInBot.Models.RollCall do
   end
 
   defp in_response_list(roll_call) do
-    output = ""
     in_responses = RollCall.responses(roll_call, "in")
-    unless Enum.empty?(in_responses) do
-      output = Enum.with_index(in_responses)
-      |> Enum.reduce("", fn({response, index}, acc) -> acc <> response_to_string("#{index+1}. ", response) end)
+    case Enum.empty?(in_responses) do
+      false ->
+        Enum.with_index(in_responses)
+        |> Enum.reduce("", fn({response, index}, acc) -> acc <> response_to_string("#{index+1}. ", response) end)
+      _ -> ""
     end
-    output
   end
 
   defp out_response_list(roll_call) do
-    output = ""
     out_responses = RollCall.responses(roll_call, "out")
-    unless Enum.empty?(out_responses) do
-      output = output <> "Out\n"
-      output = Enum.reduce(out_responses, output, fn(response, acc) -> acc <> response_to_string(" - ", response) end)
+    case Enum.empty?(out_responses) do
+      false ->
+        Enum.reduce(out_responses, "Out\n", fn(response, acc) -> acc <> response_to_string(" - ", response) end)
+      _ -> ""
     end
-    output
   end
 
   defp maybe_response_list(roll_call) do
-    output = ""
     maybe_responses = RollCall.responses(roll_call, "maybe")
-    unless Enum.empty?(maybe_responses) do
-      output = output <> "Maybe\n"
-      output = Enum.reduce(maybe_responses, output, fn(response, acc) -> acc <> response_to_string(" - ", response) end)
+    case Enum.empty?(maybe_responses) do
+      false ->
+        Enum.reduce(maybe_responses, "Maybe\n", fn(response, acc) -> acc <> response_to_string(" - ", response) end)
+      _ -> ""
     end
-    output
   end
 
   defp response_to_string(prefix, response = %{reason: reason}) do

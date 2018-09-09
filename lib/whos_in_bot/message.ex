@@ -10,8 +10,9 @@ defmodule WhosInBot.Message do
   end
   def add_command(message = %{ text: "/"<>command }) do
     command = String.split(command) |> List.first
-    if String.contains?(command, "@") do
-      command = String.split(command, "@") |> List.first
+    command = case String.contains?(command, "@") do
+      true -> String.split(command, "@") |> List.first
+      _ -> command
     end
     Map.put(message, :command, command)
   end

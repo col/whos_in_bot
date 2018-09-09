@@ -1,17 +1,16 @@
 defmodule WhosInBot.Models.RollCallResponse do
   use Ecto.Schema
-  import Ecto
   import Ecto.Changeset
-  import Ecto.Query, only: [from: 1, from: 2]
+  import Ecto.Query, only: [from: 2]
 
   schema "roll_call_responses" do
     field :status, :string
     field :name, :string
     field :user_id, :integer
     field :reason, :string
-    belongs_to :roll_call, RollCall
+    belongs_to :roll_call, WhosInBot.Models.RollCall
 
-    timestamps
+    timestamps()
   end
 
   @all_fields [:status, :name, :reason, :user_id]
@@ -39,7 +38,7 @@ defmodule WhosInBot.Models.RollCallResponse do
     where: r.status == ^status
   end
 
-  def ordered(query, status) do
+  def ordered(query, _) do
     from r in query,
     order_by: r.updated_at
   end

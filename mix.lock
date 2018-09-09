@@ -1,5 +1,5 @@
 %{
-  "beaker": {:git, "https://github.com/col/beaker.git", "61355bcba884208c758dbc2f75e89d4fd4eea968", []},
+  "beaker": {:git, "https://github.com/col/beaker.git", "c3d30e76fcd5f54d07fee9f717a2c64816b856ca", []},
   "bureaucrat": {:hex, :bureaucrat, "0.1.4", "63c955828ba6f47f8978d984031e7a208402f634db899999e12352bb72f21aaf", [:mix], [{:plug, "~> 0.14 or ~> 1.0", [hex: :plug, repo: "hexpm", optional: false]}], "hexpm"},
   "certifi": {:hex, :certifi, "2.3.1", "d0f424232390bf47d82da8478022301c561cf6445b5b5fb6a84d49a9e76d2639", [:rebar3], [{:parse_trans, "3.2.0", [hex: :parse_trans, repo: "hexpm", optional: false]}], "hexpm"},
   "connection": {:hex, :connection, "1.0.4", "a1cae72211f0eef17705aaededacac3eb30e6625b04a6117c1b2db6ace7d5976", [:mix], [], "hexpm"},
