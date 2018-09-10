@@ -7,7 +7,7 @@ defmodule Tbot.Repo.Migrations.CreateRollCall do
       add :date, :integer
       add :status, :string
 
-      timestamps
+      timestamps()
     end
 
   end

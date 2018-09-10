@@ -8,7 +8,7 @@ defmodule Tbot.Repo.Migrations.CreateRollCallResponse do
       add :user_id, :integer
       add :roll_call_id, references(:roll_calls, on_delete: :nothing)
 
-      timestamps
+      timestamps()
     end
     create index(:roll_call_responses, [:roll_call_id])
 

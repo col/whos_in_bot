@@ -10,7 +10,7 @@ config :whos_in_bot, WhosInBot.Repo,
   password: "postgres",
   database: "whos_in_bot_dev",
   hostname: "localhost",
-  port: 5439, # Customer port for docker compose setup
+  port: 5432,
   pool_size: 10
 
 config :honeybadger,

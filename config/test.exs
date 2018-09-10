@@ -10,7 +10,7 @@ config :whos_in_bot, WhosInBot.Repo,
   password: "postgres",
   database: "whos_in_bot_test",
   hostname: "localhost",
-  port: 5439, # Customer port for docker compose setup
+  port: 5432,
   pool: Ecto.Adapters.SQL.Sandbox
 
 config :honeybadger,

@@ -56,3 +56,9 @@ You can clear all the responses and start a new roll call by sending `/start_rol
 `mix deps.get`
 
 `mix test`
+
+## Docker
+
+`docker build -t whos_in_bot .`
+
+`docker run whos_in_bot`
