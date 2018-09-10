@@ -55,7 +55,7 @@ defmodule WhosInBot.RouterTest do
 
     assert conn.state == :sent
     assert conn.status == 200
-    assert conn.resp_body == "Requests: 1"
+    assert conn.resp_body == "Requests: 1\nRollCalls: 0\nRollCallResponses: 0\n"
   end
 
 end

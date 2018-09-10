@@ -2,7 +2,7 @@ defmodule WhosInBot.Router do
   use Plug.Router
   use Honeybadger.Plug
   import Atom.Chars
-  alias WhosInBot.MessageHandler
+  alias WhosInBot.{Repo, MessageHandler, Models}
   require Logger
 
   plug Beaker.Integrations.Phoenix
@@ -17,7 +17,11 @@ defmodule WhosInBot.Router do
   end
 
   get "/stats" do
-    conn |> send_resp(200, "Requests: #{Beaker.Counter.get("Phoenix:Requests")}")
+    conn |> send_resp(200, """
+    Requests: #{Beaker.Counter.get("Phoenix:Requests")}
+    RollCalls: #{Repo.aggregate(Models.RollCall, :count, :id)}
+    RollCallResponses: #{Repo.aggregate(Models.RollCallResponse, :count, :id)}
+    """)
   end
 
   post "/telegram/message" do
