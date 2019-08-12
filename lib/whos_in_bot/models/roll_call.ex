@@ -75,7 +75,9 @@ defmodule WhosInBot.Models.RollCall do
   end
 
   def response_for_name(message) do
-    Repo.get_by(RollCallResponse, %{ roll_call_id: message.roll_call.id, name: message.from.first_name })
+    from(r in RollCallResponse, where: r.roll_call_id == ^message.roll_call.id and r.name == ^message.from.first_name)
+    |> Repo.all
+    |> List.first
   end
 
   def response_for_user_id(message) do
