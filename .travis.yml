@@ -12,5 +12,5 @@ after_success:
   - mkdir -p ~/.ssh
   - cp .travis/whosinbot.pem ~/.ssh
   - cat .travis/host >> ~/.ssh/config
-  - git remote add dokku dokku@colharris.com:whos_in_bot
+  - git remote add dokku dokku@colharris.com:whosinbot
   - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && git push dokku master
