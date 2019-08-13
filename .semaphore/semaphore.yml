@@ -11,6 +11,7 @@ blocks:
     task:
       prologue:
         commands:
+          - sem-service start postgres
           - checkout
           - bin/setup_ci_elixir.sh
           - mix deps.get
@@ -18,7 +19,6 @@ blocks:
         - name: Test
           commands:
             - kiex use 1.9.1
-            - change-pg-version 10
             - mix test
 
   - name: Build
