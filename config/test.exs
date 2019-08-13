@@ -6,8 +6,8 @@ config :logger, level: :warn
 # Configure your database
 config :whos_in_bot,
        WhosInBot.Repo,
-       username: "postgres",
-       password: "postgres",
+       username: System.get_env("DATABASE_POSTGRESQL_USERNAME", "postgres"),
+       password: System.get_env("DATABASE_POSTGRESQL_PASSWORD", "postgres"),
        database: "whos_in_bot_test",
        hostname: "localhost",
        port: 5432,

@@ -18,6 +18,7 @@ blocks:
         - name: Test
           commands:
             - kiex use 1.9.1
+            - change-pg-version 10
             - mix test
 
   - name: Build
