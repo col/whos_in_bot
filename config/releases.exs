@@ -8,7 +8,8 @@ config :whos_in_bot,
        password: System.fetch_env!("DB_PASSWORD"),
        database: System.fetch_env!("DB_NAME"),
        hostname: System.fetch_env!("DB_HOST"),
-       port: System.fetch_env!("DB_PORT") |> String.to_integer(),
-       ssl: System.get_env("DB_SSL", "false") |> String.to_existing_atom()
+       port: System.get_env("DB_PORT", "5432") |> String.to_integer(),
+       ssl: System.get_env("DB_SSL", "false") |> String.to_existing_atom(),
+       pool_size: System.get_env("DB_POOL_SIZE", "10") |> String.to_integer()
 
 config :nadia, token: System.fetch_env!("BOT_TOKEN")
