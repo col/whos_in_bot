@@ -36,5 +36,6 @@ blocks:
           commands:
             - kiex use 1.9.1
             - MIX_ENV=prod mix release
+            - pwd
             - docker build . --tag colharris/whos_in_bot:0.1.0
             - docker push colharris/whos_in_bot:0.1.0
