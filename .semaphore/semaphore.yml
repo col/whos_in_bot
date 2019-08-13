@@ -1,0 +1,39 @@
+# For more Elixir information and examples, see:
+# https://docs.semaphoreci.com/article/87-language-elixir
+version: v1.0
+name: Whos In Bot
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Test
+    task:
+      prologue:
+        commands:
+          - checkout
+          - bin/setup_ci_elixir.sh
+          - mix deps.get
+      jobs:
+        - name: Test
+          commands:
+            - kiex use 1.9.1
+            - mix test
+
+  - name: Build
+    task:
+      secrets:
+        - name: dockerhub-secrets
+      prologue:
+        commands:
+          - checkout
+          - bin/setup_ci_elixir.sh
+          - mix deps.get
+          - echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+      jobs:
+        - name: Build
+          commands:
+            - kiex use 1.9.1
+            - MIX_ENV=prod mix release
+            - docker build . --tag colharris/whos_in_bot:0.1.0
+            - docker push colharris/whos_in_bot:0.1.0

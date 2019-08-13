@@ -1,34 +1,14 @@
-FROM elixir:latest
+FROM ubuntu:18.04
 MAINTAINER Colin Harris <col.w.harris@gmail.com>
 
-# Install the postgres client library
-RUN apt-get update && apt-get install -y postgresql-client
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
 
-# Configure required environment
-ENV MIX_ENV prod
+RUN apt-get update && \
+    apt-get install -y locales libssl1.0.0 erlang-crypto postgresql-client && \
+    localedef -i en_US -f UTF-8 en_US.UTF-8
 
-# Set and expose PORT environmental variable
-ENV PORT ${PORT:-5000}
-EXPOSE $PORT
+ENV MIX_ENV=prod
+COPY _build/prod/rel/whos_in_bot .
 
-# Install hex (Elixir package manager)
-RUN mix local.hex --force
-
-# Install rebar (Erlang build tool)
-RUN mix local.rebar --force
-
-# Install app source
-RUN mkdir /app
-COPY . /app
-WORKDIR /app
-
-# Install all production dependencies
-RUN mix deps.get --only prod
-
-# Compile all dependencies
-RUN mix deps.compile
-
-# Compile the entire project
-RUN mix compile
-
-CMD ["/app/entrypoint.sh"]
+ENTRYPOINT ["whos_in_bot", "start"]

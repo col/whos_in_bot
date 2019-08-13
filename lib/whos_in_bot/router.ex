@@ -1,14 +1,13 @@
 defmodule WhosInBot.Router do
   use Plug.Router
-  use Honeybadger.Plug
   import Atom.Chars
   alias WhosInBot.{Repo, MessageHandler, Models}
   require Logger
 
-  plug Beaker.Integrations.Phoenix
+#  plug Beaker.Integrations.Phoenix
   plug Plug.Parsers, parsers: [:urlencoded, :json],
                      pass:  ["application/json"],
-                     json_decoder: Poison
+                     json_decoder: Jason
   plug :match
   plug :dispatch
 
@@ -17,8 +16,8 @@ defmodule WhosInBot.Router do
   end
 
   get "/stats" do
+    #    Requests: #{Beaker.Counter.get("Phoenix:Requests")}
     conn |> send_resp(200, """
-    Requests: #{Beaker.Counter.get("Phoenix:Requests")}
     RollCalls: #{Repo.aggregate(Models.RollCall, :count, :id)}
     RollCallResponses: #{Repo.aggregate(Models.RollCallResponse, :count, :id)}
     """)
