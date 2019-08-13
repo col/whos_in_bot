@@ -9,6 +9,6 @@ RUN apt-get update && \
     localedef -i en_US -f UTF-8 en_US.UTF-8
 
 ENV MIX_ENV=prod
-COPY _build/prod/rel/whos_in_bot .
+COPY /home/semaphore/whos_in_bot/_build/prod/rel/whos_in_bot .
 
 ENTRYPOINT ["whos_in_bot", "start"]
