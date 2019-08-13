@@ -40,22 +40,11 @@ defmodule WhosInBot.RouterTest do
     assert conn.status == 404
   end
 
-#  test "Any request increments the request counter" do
-#    Beaker.Counter.clear
-#    conn = conn(:get, "/") |> Router.call(@opts)
-#
-#    assert conn.state == :sent
-#    assert conn.status == 200
-#    assert 1 = Beaker.Counter.get("Phoenix:Requests")
-#  end
+  test "GET /stats displays the number of requests since last deploy" do
+    conn = conn(:get, "/stats") |> Router.call(@opts)
 
-#  test "GET /stats displays the number of requests since last deploy" do
-#    Beaker.Counter.set("Phoenix:Requests", 1)
-#    conn = conn(:get, "/stats") |> Router.call(@opts)
-#
-#    assert conn.state == :sent
-#    assert conn.status == 200
-#    assert conn.resp_body == "Requests: 1\nRollCalls: 0\nRollCallResponses: 0\n"
-#  end
-
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "RollCalls: 0\nRollCallResponses: 0\n"
+  end
 end

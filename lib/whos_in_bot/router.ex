@@ -4,7 +4,6 @@ defmodule WhosInBot.Router do
   alias WhosInBot.{Repo, MessageHandler, Models}
   require Logger
 
-#  plug Beaker.Integrations.Phoenix
   plug Plug.Parsers, parsers: [:urlencoded, :json],
                      pass:  ["application/json"],
                      json_decoder: Jason
@@ -16,7 +15,6 @@ defmodule WhosInBot.Router do
   end
 
   get "/stats" do
-    #    Requests: #{Beaker.Counter.get("Phoenix:Requests")}
     conn |> send_resp(200, """
     RollCalls: #{Repo.aggregate(Models.RollCall, :count, :id)}
     RollCallResponses: #{Repo.aggregate(Models.RollCallResponse, :count, :id)}
@@ -25,7 +23,6 @@ defmodule WhosInBot.Router do
 
   post "/telegram/message" do
     message = Map.get(to_atom(conn.params), :message, %{})
-    Logger.debug("Received Message: #{inspect message}")
     case MessageHandler.handle_message(message) do
       {:ok, response} ->
         send_chat_response(message, response)
