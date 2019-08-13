@@ -36,5 +36,5 @@ blocks:
           commands:
             - kiex use 1.9.1
             - MIX_ENV=prod mix release
-            - docker build . --tag colharris/whos_in_bot:0.1.0
-            - docker push colharris/whos_in_bot:0.1.0
+            - docker build . --tag colharris/whos_in_bot:$SEMAPHORE_GIT_SHA
+            - docker push colharris/whos_in_bot:$SEMAPHORE_GIT_SHA
