@@ -61,12 +61,12 @@ You can clear all the responses and start a new roll call by sending `/start_rol
 
 ```
 source .env
-curl -XPOST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getWebhookInfo
+curl -XPOST https://api.telegram.org/bot$BOT_TOKEN/getWebhookInfo
 ```
 
 ```
 source .env
-curl -XPOST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook?url=$WEBHOOK_URL
+curl -XPOST https://api.telegram.org/bot$BOT_TOKEN/setWebhook?url=$WEBHOOK_URL
 ```
 
 ## Docker

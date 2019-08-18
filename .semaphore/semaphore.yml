@@ -35,6 +35,6 @@ blocks:
         - name: Build
           commands:
             - kiex use 1.9.1
-            - MIX_ENV=prod mix release
+            - MIX_ENV=prod mix release --overwrite
             - docker build . --tag colharris/whos_in_bot:$SEMAPHORE_GIT_SHA
             - docker push colharris/whos_in_bot:$SEMAPHORE_GIT_SHA
