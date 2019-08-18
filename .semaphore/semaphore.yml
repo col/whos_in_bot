@@ -12,6 +12,7 @@ blocks:
       prologue:
         commands:
           - sem-service start postgres
+          - sem-version erlang 20
           - checkout
           - bin/setup_ci_elixir.sh
           - mix deps.get
@@ -27,6 +28,7 @@ blocks:
         - name: dockerhub-secrets
       prologue:
         commands:
+          - sem-version erlang 20
           - checkout
           - bin/setup_ci_elixir.sh
           - mix deps.get
