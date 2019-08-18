@@ -3,7 +3,7 @@
 set -e
 
 ELIXIR_VERSION=1.9.1
-ELIXIR_CACHE_KEY=kiex-elixir-$ELIXIR_VERSION
+ELIXIR_CACHE_KEY=kiex-elixir-$ELIXIR_VERSION-erl-20
 
 if cache has_key "$ELIXIR_CACHE_KEY"; then
   cache restore $ELIXIR_CACHE_KEY
