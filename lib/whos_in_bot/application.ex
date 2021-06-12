@@ -5,7 +5,7 @@ defmodule WhosInBot.Application do
     import Supervisor.Spec, warn: false
 
     children = [
-      {Plug.Cowboy, scheme: :http, plug: WhosInBot.Router, options: [port: 5000]},
+      {Plug.Cowboy, scheme: :http, plug: WhosInBot.Router, options: [port: Application.get_env(:whos_in_bot, :port, 5000)]},
       supervisor(WhosInBot.Repo, [])
     ]
 

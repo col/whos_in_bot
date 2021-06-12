@@ -13,3 +13,5 @@ config :whos_in_bot,
        pool_size: System.get_env("DB_POOL_SIZE", "10") |> String.to_integer()
 
 config :nadia, token: System.fetch_env!("BOT_TOKEN")
+
+config :whos_in_bot, port: System.get_env("PORT", "8080") |> String.to_integer()
